@@ -4,6 +4,47 @@
     <groupId>CBL.Programming</groupId>
     <artifactId>CBL_Programming</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <!-- Copy this entire <build> section into your own pom.xml -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+
+				<configuration>
+					<!-- The Checkstyle configuration file (2IP90_checks.xml)
+						 must be located in the root directory of your Maven project
+						 (the same directory as pom.xml). -->
+					<configLocation>2IP90_checks.xml</configLocation>
+					<failOnViolation>false</failOnViolation>
+					<failsOnError>true</failsOnError>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<violationSeverity>warning</violationSeverity>
+				</configuration>
+
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>13.7.0</version>
+					</dependency>
+				</dependencies>
+
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+		</plugins>
+	</build>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
