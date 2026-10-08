@@ -26,20 +26,23 @@ public class GamePanel extends JPanel implements KeyListener {
     public GamePanel(JFrame frame) {
         this.parentFrame = frame;   
         setBackground(Color.BLACK);
+        setLayout(null);
         setFocusable(true);         
         addKeyListener(this);
-        this.player = new Player("Player", new int[] {225, 450}, frame);  
+        this.player = new Player("Player", new int[] {225, 450});
+        player.setBounds(225, 450, 30, 30);
+        this.add(player);
         lastUpdateNanos = System.nanoTime();
         gameTimer.start();
     }
 
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g); 
-        player.paintComponent(g);
+        super.paintComponent(g);
     }
 
     protected void updateGame() {
         // esc menu again
+
         if (keys[KeyEvent.VK_ESCAPE]) {
             gameTimer.stop();
             Main.showMenu(parentFrame);

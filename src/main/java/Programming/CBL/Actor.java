@@ -13,11 +13,8 @@ public abstract class Actor extends JComponent {
     protected static final double SPEED = 60.0;
     protected double x;
     protected double y;
-    protected JFrame window;
 
-
-    public Actor(JFrame frame) {
-        window = frame;
+    public Actor() {
     }
 
     /**
@@ -26,8 +23,9 @@ public abstract class Actor extends JComponent {
      */
     public void moveX(int direction, double elapsedSeconds) {
         double nextX = x + direction * SPEED * elapsedSeconds;
-        if (window.getWidth() > nextX && nextX > 0) {
+        if (nextX >= 0 && nextX + getWidth() <= getParent().getWidth()) {
             x = nextX;
+            setLocation((int) Math.round(x), getY());
         }
     }
     
@@ -37,8 +35,9 @@ public abstract class Actor extends JComponent {
      */
     public void moveY(int direction, double elapsedSeconds) {
         double nextY = y + direction * SPEED * elapsedSeconds;
-        if (window.getHeight() > nextY && nextY > 0) {
+        if (nextY >= 0 && nextY + getHeight() <= getParent().getHeight()) {
             y = nextY;
+            setLocation(getX(), (int) Math.round(y));
         }
     }
 
