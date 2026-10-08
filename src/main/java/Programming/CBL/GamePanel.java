@@ -1,65 +1,74 @@
 package Programming.CBL;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class GamePanel extends JPanel implements KeyListener {
-    
-    private int playerX = 225; 
-    private int playerY = 450;
-    
-    private static final int SIZE = 30;
-    private static final int SPEED = 10;
 
+public class GamePanel extends JPanel implements KeyListener {
+    private static final int FRAME_DELAY_MS = 1000 / 60;
+
+    private Timer gameTimer;
     private JFrame parentFrame;
+    private Player player;
+
+    boolean[] keys = new boolean[KeyEvent.KEY_TYPED];
+
 
     public GamePanel(JFrame frame) {
         this.parentFrame = frame;   
         setBackground(Color.BLACK);
         setFocusable(true);         
-        addKeyListener(this);       
+        addKeyListener(this);
+        this.player = new Player("Player", new int[] {225, 450}, frame);  
+        
+        gameTimer = new Timer(FRAME_DELAY_MS, e -> {
+        updateGame(); // Update game state here
+        repaint();
+        });
+        gameTimer.start();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g); 
-        g.setColor(Color.BLUE);
-        g.fillRect(playerX, playerY, SIZE, SIZE);
+        player.paintComponent(g);
     }
 
-    public void keyPressed(KeyEvent e) {
-        int key = e.getKeyCode();
-
+    protected void updateGame() {
         // esc menu again
-        if (key == KeyEvent.VK_ESCAPE) {
+        if (keys[KeyEvent.VK_ESCAPE]) {
             Main.showMenu(parentFrame);
             return; 
         }
 
         // window limits
-        if (key == KeyEvent.VK_LEFT && playerX > 0) {
-            playerX -= SPEED;
+        if (keys[KeyEvent.VK_LEFT]) {
+            player.moveX(-1);
         }
-        if (key == KeyEvent.VK_RIGHT && playerX < getWidth() - SIZE) {
-            playerX += SPEED;
+        if (keys[KeyEvent.VK_RIGHT]) {
+            player.moveX(1);
         }
-        if (key == KeyEvent.VK_UP && playerY > 0) {
-            playerY -= SPEED;
+        if (keys[KeyEvent.VK_UP]) {
+            player.moveY(-1);
         }
-        if (key == KeyEvent.VK_DOWN && playerY < getHeight() - SIZE) { 
-            playerY += SPEED;
+        if (keys[KeyEvent.VK_DOWN]) { 
+            player.moveY(1);
         }
-        
-        repaint(); 
     }
 
     // obligatory java so keys work
     public void keyTyped(KeyEvent e) {
     }
 
+    public void keyPressed(KeyEvent e) {
+    keys[e.getKeyCode()] = true;
+}
+
     public void keyReleased(KeyEvent e) {
+        keys[e.getKeyCode()] = false;
     }
 }
