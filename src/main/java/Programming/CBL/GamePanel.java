@@ -10,8 +10,9 @@ import java.awt.event.KeyListener;
 
 
 public class GamePanel extends JPanel implements KeyListener {
-    private static final int FRAME_DELAY_MS = 1000 / 60;
-
+    private static final int FRAME_DELAY_MS = 1000 / 60; //60fps
+    
+    // Starts a timer that calls updateGame and repaint 60\s
     private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
             updateGame();
             repaint();
@@ -20,18 +21,24 @@ public class GamePanel extends JPanel implements KeyListener {
     private Player player;
     private long lastUpdateNanos;
 
+    // Stores the held keys
     boolean[] keys = new boolean[KeyEvent.KEY_TYPED];
 
 
     public GamePanel(JFrame frame) {
+        // Panel set up
         this.parentFrame = frame;   
         setBackground(Color.BLACK);
         setLayout(null);
         setFocusable(true);         
         addKeyListener(this);
+
+        // Player set up
         this.player = new Player("Player", new int[] {225, 450});
         player.setBounds(225, 450, 30, 30);
+        // Add player to panel
         this.add(player);
+        // Start timer
         lastUpdateNanos = System.nanoTime();
         gameTimer.start();
     }
@@ -41,8 +48,7 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     protected void updateGame() {
-        // esc menu again
-
+        // esc menu 
         if (keys[KeyEvent.VK_ESCAPE]) {
             gameTimer.stop();
             Main.showMenu(parentFrame);
@@ -53,7 +59,7 @@ public class GamePanel extends JPanel implements KeyListener {
         double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
         lastUpdateNanos = now;
 
-        // window limits
+        // Move player according to held keys and elapsed time
         if (keys[KeyEvent.VK_LEFT]) {
             player.moveX(-1, elapsedSeconds);
         }
@@ -68,7 +74,6 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    // obligatory java so keys work
     public void keyTyped(KeyEvent e) {
     }
 
