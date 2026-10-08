@@ -10,9 +10,9 @@ import javax.swing.*;
  */
 public abstract class Actor extends JComponent {
     protected int health;
-    protected static final int SPEED = 1;
-    protected int[] pos  = new int[2]; 
-    protected int[] nextPos = pos;
+    protected static final double SPEED = 60.0;
+    protected double x;
+    protected double y;
     protected JFrame window;
 
 
@@ -24,9 +24,10 @@ public abstract class Actor extends JComponent {
      * Moves the actor by y * speed.
      * @param x position the actor needs to move to
      */
-    public  void moveX(int x) {
-        if (window.getWidth() > x * SPEED + this.nextPos[0] && x * SPEED + this.nextPos[0] > 0) {
-            this.nextPos[0] += x * SPEED;
+    public void moveX(int direction, double elapsedSeconds) {
+        double nextX = x + direction * SPEED * elapsedSeconds;
+        if (window.getWidth() > nextX && nextX > 0) {
+            x = nextX;
         }
     }
     
@@ -34,9 +35,10 @@ public abstract class Actor extends JComponent {
      * Moves the actor by y * speed.
      * @param y 
      */
-    public void moveY(int y) {
-        if (window.getHeight() > y * SPEED + this.nextPos[1] && y * SPEED + this.nextPos[1] > 0) {
-            this.nextPos[1] += y * SPEED;
+    public void moveY(int direction, double elapsedSeconds) {
+        double nextY = y + direction * SPEED * elapsedSeconds;
+        if (window.getHeight() > nextY && nextY > 0) {
+            y = nextY;
         }
     }
 

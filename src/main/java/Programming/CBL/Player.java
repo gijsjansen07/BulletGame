@@ -13,17 +13,15 @@ public class Player extends Actor{
     public Player(String name, int[] startPos, JFrame frame) {
         super(frame);
         this.name = name;
-        this.pos[0] = startPos[0];
-        this.pos[1] = startPos[1];
-        this.nextPos = this.pos;
+        this.x = startPos[0];
+        this.y = startPos[1];
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLUE);
-        g.fillRect(nextPos[0], nextPos[1], SIZE, SIZE);
-        pos = nextPos;
+        g.fillRect((int) Math.round(x), (int) Math.round(y), SIZE, SIZE);
     }
     
 }

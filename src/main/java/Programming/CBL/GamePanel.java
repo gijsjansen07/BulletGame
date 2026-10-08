@@ -12,9 +12,13 @@ import java.awt.event.KeyListener;
 public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60;
 
-    private Timer gameTimer;
+    private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
+            updateGame();
+            repaint();
+        });
     private JFrame parentFrame;
     private Player player;
+    private long lastUpdateNanos;
 
     boolean[] keys = new boolean[KeyEvent.KEY_TYPED];
 
@@ -25,11 +29,7 @@ public class GamePanel extends JPanel implements KeyListener {
         setFocusable(true);         
         addKeyListener(this);
         this.player = new Player("Player", new int[] {225, 450}, frame);  
-        
-        gameTimer = new Timer(FRAME_DELAY_MS, e -> {
-        updateGame(); // Update game state here
-        repaint();
-        });
+        lastUpdateNanos = System.nanoTime();
         gameTimer.start();
     }
 
@@ -41,22 +41,27 @@ public class GamePanel extends JPanel implements KeyListener {
     protected void updateGame() {
         // esc menu again
         if (keys[KeyEvent.VK_ESCAPE]) {
+            gameTimer.stop();
             Main.showMenu(parentFrame);
             return; 
         }
 
+        long now = System.nanoTime();
+        double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
+        lastUpdateNanos = now;
+
         // window limits
         if (keys[KeyEvent.VK_LEFT]) {
-            player.moveX(-1);
+            player.moveX(-1, elapsedSeconds);
         }
         if (keys[KeyEvent.VK_RIGHT]) {
-            player.moveX(1);
+            player.moveX(1, elapsedSeconds);
         }
         if (keys[KeyEvent.VK_UP]) {
-            player.moveY(-1);
+            player.moveY(-1, elapsedSeconds);
         }
         if (keys[KeyEvent.VK_DOWN]) { 
-            player.moveY(1);
+            player.moveY(1, elapsedSeconds);
         }
     }
 
@@ -65,8 +70,8 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     public void keyPressed(KeyEvent e) {
-    keys[e.getKeyCode()] = true;
-}
+        keys[e.getKeyCode()] = true;
+    }
 
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
