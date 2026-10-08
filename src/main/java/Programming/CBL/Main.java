@@ -35,13 +35,17 @@ public class Main {
 
         // start button
         startButton.addActionListener(e -> {
+            //Clears the frame
             frame.getContentPane().removeAll();
             
+            //Inits a gamepanel on in the window
             GamePanel gamePanel = new GamePanel(frame);
             frame.add(gamePanel);
             
             frame.revalidate();
             frame.repaint();
+
+            // Allows the gamepanel to check key inputs
             gamePanel.requestFocusInWindow(); 
         });
 
