@@ -11,16 +11,16 @@ public class Main {
         JFrame frame = new JFrame("Bullet Hell - Game");
         frame.setSize(500, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null); 
-        
+        frame.setLocationRelativeTo(null);
+
         // menu
         showMenu(frame);
-        
+
         frame.setVisible(true);
     }
 
     public static void showMenu(JFrame frame) {
-        // clen screen
+        // clean screen
         frame.getContentPane().removeAll();
 
         JPanel menuPanel = new JPanel();
@@ -37,16 +37,16 @@ public class Main {
         startButton.addActionListener(e -> {
             //Clears the frame
             frame.getContentPane().removeAll();
-            
+
             //Inits a gamepanel on in the window
             GamePanel gamePanel = new GamePanel(frame);
             frame.add(gamePanel);
-            
+
             frame.revalidate();
             frame.repaint();
 
             // Allows the gamepanel to check key inputs
-            gamePanel.requestFocusInWindow(); 
+            gamePanel.requestFocusInWindow();
         });
 
         menuPanel.add(startButton);
@@ -54,7 +54,7 @@ public class Main {
         menuPanel.add(exitButton);
 
         frame.add(menuPanel);
-        
+
         // refresh window
         frame.revalidate();
         frame.repaint();
