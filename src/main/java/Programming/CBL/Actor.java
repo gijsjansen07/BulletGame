@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
  */
 public abstract class Actor {
     protected int health;
-    protected static final double SPEED = 250.0; // pixels per second
+    protected static final double SPEED = 100.0; // pixels per second
     protected double x;
     protected double y;
     protected final int width;
@@ -23,6 +23,7 @@ public abstract class Actor {
     }
 
     /**
+     * @deprecated
      * Moves the actor horizontally by direction * SPEED * elapsedSeconds,
      * clamped to the area [0, areaWidth].
      * @param direction -1 for left, 1 for right
@@ -35,6 +36,7 @@ public abstract class Actor {
     }
 
     /**
+     * @deprecated 
      * Moves the actor vertically by direction * SPEED * elapsedSeconds,
      * clamped to the area [0, areaHeight].
      * @param direction -1 for up, 1 for down
@@ -44,6 +46,30 @@ public abstract class Actor {
     public void moveY(int direction, double elapsedSeconds, int areaHeight) {
         double nextY = y + direction * SPEED * elapsedSeconds;
         y = Math.max(0, Math.min(nextY, areaHeight - height));
+    }
+
+    /**
+     * Moves the actor by (dx, dy) over elapsedSeconds,
+     * clamped to the area [0, areaWidth] x [0, areaHeight].
+     * @param dx horizontal distance to move
+     * @param dy vertical distance to move
+     * @param elapsedSeconds time since the last update
+     * @param areaWidth width of the play area
+     * @param areaHeight height of the play area
+     */
+    public void move(double dx, double dy, double elapsedSeconds,
+                 int areaWidth, int areaHeight) {
+        double length = Math.hypot(dx, dy);
+        
+        // Normalize the movement speed
+        if (length > 0) {
+            dx /= length;
+            dy /= length;
+        }
+
+        // Set new position and clamp to window borders.
+        x = Math.max(0, Math.min(x + dx * SPEED * elapsedSeconds, areaWidth - width));
+        y = Math.max(0, Math.min(y + dy * SPEED * elapsedSeconds, areaHeight - height));
     }
 
     /**

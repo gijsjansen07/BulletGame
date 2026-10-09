@@ -9,10 +9,11 @@ public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60; // ~60fps
     
     // Starts a timer that calls updateGame and repaint ~60/s
-    private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
-            updateGame();
-            repaint();
-        });
+    private Timer gameTimer = new Timer(FRAME_DELAY_MS,
+                                        e -> {
+                                            updateGame();
+                                            repaint();
+                                        });
     private JFrame parentFrame;
     private Player player;
     private long lastUpdateNanos;
@@ -63,18 +64,10 @@ public class GamePanel extends JPanel implements KeyListener {
         int h = getHeight();
 
         // Move player according to held keys and elapsed time
-        if (keys[KeyEvent.VK_LEFT]) {
-            player.moveX(-1, elapsedSeconds, w);
-        }
-        if (keys[KeyEvent.VK_RIGHT]) {
-            player.moveX(1, elapsedSeconds, w);
-        }
-        if (keys[KeyEvent.VK_UP]) {
-            player.moveY(-1, elapsedSeconds, h);
-        }
-        if (keys[KeyEvent.VK_DOWN]) {
-            player.moveY(1, elapsedSeconds, h);
-        }
+        int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
+        int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
+
+        player.move(dx, dy, elapsedSeconds, w, h);
     }
 
     public void keyTyped(KeyEvent e) {
