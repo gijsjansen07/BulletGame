@@ -1,6 +1,7 @@
 package Programming.CBL;
 
 import java.awt.Graphics2D;
+import java.awt.Shape;
 
 /**
  * Actor class is an abstract class that is the root class of all actors within the
@@ -8,18 +9,19 @@ import java.awt.Graphics2D;
  * Actors are plain data objects; they are drawn by the GamePanel.
  */
 public abstract class Actor {
-    protected int health;
-    protected static final double SPEED = 100.0; // pixels per second
+    protected GamePanel panel;
+    protected double speed = 100.0; // pixels per second
     protected double x;
     protected double y;
     protected final int width;
     protected final int height;
 
-    public Actor(double x, double y, int width, int height) {
+    public Actor(double x, double y, int width, int height, GamePanel panel) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.panel = panel;
     }
 
     /**
@@ -31,7 +33,7 @@ public abstract class Actor {
      * @param areaWidth width of the play area
      */
     public void moveX(int direction, double elapsedSeconds, int areaWidth) {
-        double nextX = x + direction * SPEED * elapsedSeconds;
+        double nextX = x + direction * speed * elapsedSeconds;
         x = Math.max(0, Math.min(nextX, areaWidth - width));
     }
 
@@ -44,7 +46,7 @@ public abstract class Actor {
      * @param areaHeight height of the play area
      */
     public void moveY(int direction, double elapsedSeconds, int areaHeight) {
-        double nextY = y + direction * SPEED * elapsedSeconds;
+        double nextY = y + direction * speed * elapsedSeconds;
         y = Math.max(0, Math.min(nextY, areaHeight - height));
     }
 
@@ -57,8 +59,7 @@ public abstract class Actor {
      * @param areaWidth width of the play area
      * @param areaHeight height of the play area
      */
-    public void move(double dx, double dy, double elapsedSeconds,
-                 int areaWidth, int areaHeight) {
+    public void move(double dx, double dy, double elapsedSeconds) {
         double length = Math.hypot(dx, dy);
         
         // Normalize the movement speed
@@ -67,9 +68,9 @@ public abstract class Actor {
             dy /= length;
         }
 
-        // Set new position and clamp to window borders.
-        x = Math.max(0, Math.min(x + dx * SPEED * elapsedSeconds, areaWidth - width));
-        y = Math.max(0, Math.min(y + dy * SPEED * elapsedSeconds, areaHeight - height));
+        // Set new position
+        x = x + dx * speed * elapsedSeconds;
+        y = y + dy * speed * elapsedSeconds;
     }
 
     /**
@@ -77,20 +78,20 @@ public abstract class Actor {
      * @param amount amount health is reduced by.
      * @return true if health above 0
      */
-    public boolean reduceHealth(int amount) {
-        health -= amount;
-        return health > 0;
-    }
+    public abstract boolean reduceHealth(int amount);
 
     /**
      * Increases health of the actor.
      * @param amount amount health is increased by.
      * @return true if health above 0
      */
-    public boolean increaseHealth(int amount) {
-        health += amount;
-        return health > 0;
-    }
+    public abstract boolean increaseHealth(int amount);
+
+    /**
+     * Returns the actor's current collision and drawing shape.
+     * @return the actor's shape
+     */
+    public abstract Shape getShape();
 
     /**
      * Draws the actor.

@@ -16,6 +16,7 @@ public class GamePanel extends JPanel implements KeyListener {
                                         });
     private JFrame parentFrame;
     private Player player;
+    private ProjectileManager pManager;
     private long lastUpdateNanos;
 
     // Stores the held keys
@@ -30,7 +31,10 @@ public class GamePanel extends JPanel implements KeyListener {
         addKeyListener(this);
 
         // Player set up (position is plain data, drawn in paintComponent)
-        this.player = new Player("Player", new int[] {225, 450});
+        this.player = new Player("Player", new int[] {225, 450}, this);
+
+        // Projectile Manager set up
+        this.pManager = new ProjectileManager();
 
         // Start timer
         lastUpdateNanos = System.nanoTime();
@@ -43,6 +47,7 @@ public class GamePanel extends JPanel implements KeyListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // Draw call
+        pManager.drawProjectiles(g2);
         player.draw(g2);
         // Flush the display buffer (helps on Linux)
         Toolkit.getDefaultToolkit().sync();
@@ -63,11 +68,13 @@ public class GamePanel extends JPanel implements KeyListener {
         int w = getWidth();
         int h = getHeight();
 
+        pManager.updateProjectiles(elapsedSeconds);
+
         // Move player according to held keys and elapsed time
         int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
         int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
-
-        player.move(dx, dy, elapsedSeconds, w, h);
+        pManager.addProjectile(new Projectile(getWidth()/2, getHeight()/2, 5, 5, player.x - getHeight()/2, player.y - getWidth()/2, this) );
+        player.move(dx, dy, elapsedSeconds);
     }
 
     public void keyTyped(KeyEvent e) {
