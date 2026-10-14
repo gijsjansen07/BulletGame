@@ -5,21 +5,17 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 public class Projectile extends Actor implements SelfMoving {
-    public Actor origin;
+    private final Actor origin;
     private double xDir; 
     private double yDir; 
 
     public Projectile(double x, double y, int width, int height, double xDir,
-                      double yDir, GamePanel panel) {
-        this(x, y, width, height, xDir, yDir, null, panel);
-    }
-
-    public Projectile(double x, double y, int width, int height, double xDir,
                       double yDir, Actor origin, GamePanel panel) {
         super(x, y, width, height, panel);
-        this.origin = origin;
+        this.origin = Objects.requireNonNull(origin, "origin");
         this.xDir = xDir;
         this.yDir = yDir;
     }
@@ -46,26 +42,30 @@ public class Projectile extends Actor implements SelfMoving {
 
         this.move(dx, dy, dt);
 
-        if (this.x + this.width < 0 || this.x > this.panel.getWidth()) {
-            return false;
-        }
-        return true;
+        Rectangle2D bounds = getShape().getBounds2D();
+        return bounds.getMaxX() > 0
+                && bounds.getMinX() < panel.getWidth()
+                && bounds.getMaxY() > 0
+                && bounds.getMinY() < panel.getHeight();
     }
 
     public boolean hits(Actor a) {
-        Area overlap = new Area(a.getShape());
-        overlap.intersect(new Area(this.getShape()));
-        if (this == a) {
-            return false; 
+        if (this == a || this.origin == a) {
+            return false;
         }
-        if (this.origin == null) {
-            return false; 
+
+        Shape targetShape = a.getShape();
+        Shape projectileShape = getShape();
+        if (!targetShape.getBounds2D().intersects(projectileShape.getBounds2D())) {
+            return false;
         }
-        if (this.origin == a) {
-            return false; 
-        }
+
+        Area overlap = new Area(targetShape);
+        overlap.intersect(new Area(projectileShape));
         return !overlap.isEmpty();
     }
+
+    public void kill() {};
 
     @Override
     public boolean reduceHealth(int amount) {

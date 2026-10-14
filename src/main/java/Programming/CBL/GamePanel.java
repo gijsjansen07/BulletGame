@@ -69,11 +69,14 @@ public class GamePanel extends JPanel implements KeyListener {
         int h = getHeight();
 
         pManager.updateProjectiles(elapsedSeconds);
-
+        pManager.removeHitProjectiles(player);
         // Move player according to held keys and elapsed time
         int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
         int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
-        pManager.addProjectile(new Projectile(getWidth()/2, getHeight()/2, 5, 5, player.x - getHeight()/2, player.y - getWidth()/2, this) );
+
+        //Player shoots projectile
+        Projectile p = new Projectile(player.x, player.y, 5, 5, dx, dy, player, this);
+        pManager.addProjectile(p);
         player.move(dx, dy, elapsedSeconds);
     }
 

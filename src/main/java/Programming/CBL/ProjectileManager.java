@@ -19,6 +19,8 @@ public class ProjectileManager {
     public boolean addProjectile(Projectile projectile) {
         return projectiles.add(projectile);
     }
+
+
     
     public void drawProjectiles(Graphics2D g) {
         Iterator<Projectile> it = projectiles.iterator();
@@ -53,12 +55,15 @@ public class ProjectileManager {
         }
     }
 
-    public Projectile[] hitsByProjectiles(Actor a) {
+    public Projectile[] removeHitProjectiles(Actor a) {
         ArrayList<Projectile> hits = new ArrayList<>();
+        Iterator<Projectile> it = projectiles.iterator();
 
-        for (Projectile projectile : projectiles) {
+        while (it.hasNext()) {
+            Projectile projectile = it.next();
             if (projectile.hits(a)) {
                 hits.add(projectile);
+                it.remove();
             }
         }
         return hits.toArray(new Projectile[0]);
