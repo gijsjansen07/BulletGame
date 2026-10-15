@@ -1,11 +1,22 @@
-package Programming.CBL;
+package Programming.CBL.Panels;
 
 
-import java.awt.*;
-import java.awt.event.*;
+import Programming.CBL.Main;
+import Programming.CBL.Manager.ProjectileManager;
+import Programming.CBL.Objects.Player;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
-
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60; // ~60fps
@@ -47,6 +58,7 @@ public class GamePanel extends JPanel implements KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        // Turns on anti aliasing for subpixel movement.
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Draw call
@@ -81,10 +93,7 @@ public class GamePanel extends JPanel implements KeyListener {
         long now = System.nanoTime();
         double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
         lastUpdateNanos = now;
-         
-        int w = getWidth();
-        int h = getHeight();
-
+        
         // updates
         player.shootProjectile(playerDirVec, elapsedSeconds, pManager);
 

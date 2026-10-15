@@ -1,5 +1,8 @@
-package Programming.CBL;
+package Programming.CBL.Objects;
 
+
+import Programming.CBL.Interfaces.SelfMoving;
+import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -8,13 +11,14 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
+
 public class Projectile extends Actor implements SelfMoving {
     
     private final Actor origin;
     private Point2D dir = new Point2D.Double(0, 0);
 
     public Projectile(Point2D pos, int width, int height,
-                      Point2D dir, Actor origin, int speed,GamePanel panel) {
+                      Point2D dir, Actor origin, int speed, GamePanel panel) {
 
         super(new Point2D.Double(pos.getX(), pos.getY()), width, height, panel);
         this.origin = Objects.requireNonNull(origin, "origin");
@@ -35,7 +39,7 @@ public class Projectile extends Actor implements SelfMoving {
 
     /**    
      * 
-     * @see Programming.CBL.SelfMoving#update(double)
+     * @see Programming.CBL.Interfaces.SelfMoving#update(double)
      */
     @Override
     public boolean update(double dt) {

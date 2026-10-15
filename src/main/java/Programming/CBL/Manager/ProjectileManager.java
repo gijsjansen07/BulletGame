@@ -1,5 +1,8 @@
-package Programming.CBL;
+package Programming.CBL.Manager;
 
+
+import Programming.CBL.Objects.Actor;
+import Programming.CBL.Objects.Projectile;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Iterator;

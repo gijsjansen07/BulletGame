@@ -1,8 +1,9 @@
-package Programming.CBL;
+package Programming.CBL.Objects;
 
+import Programming.CBL.Manager.ProjectileManager;
+import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -13,6 +14,7 @@ import java.time.Instant;
 public class Player extends Actor {
     private static final int TIME_BETWEEN_SHOTS = 200;
     private static final int SPEED = 100;
+
 
     private String name;
     private int highscore = 0;
@@ -30,7 +32,8 @@ public class Player extends Actor {
         Instant now = Instant.now();
         if (Duration.between(lastShot, now).toMillis() > TIME_BETWEEN_SHOTS) {
             this.lastShot = now;
-            return pManager.addProjectile(new Projectile(this.pos, width, height, p, this, 400, panel));
+            return pManager.addProjectile(new Projectile(this.pos, width, height, 
+                                                         p, this, 400, panel));
         }
         return false;
     }
@@ -57,8 +60,12 @@ public class Player extends Actor {
         }
 
         // Set new position and clamp to window borders.
-        double newX = Math.max(0, Math.min(pos.getX() + dx * speed * elapsedSeconds, this.panel.getWidth() - width));
-        double newY = Math.max(0, Math.min(pos.getY() + dy * speed * elapsedSeconds, this.panel.getHeight() - height));
+        double newX = Math.max(0, 
+                                 Math.min(pos.getX() + dx * speed * elapsedSeconds, 
+                                          this.panel.getWidth() - width));
+        double newY = Math.max(0, 
+                                 Math.min(pos.getY() + dy * speed * elapsedSeconds, 
+                                          this.panel.getHeight() - height));
         this.pos.setLocation(newX, newY);
     }
 

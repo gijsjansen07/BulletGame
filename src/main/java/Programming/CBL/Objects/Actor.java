@@ -1,7 +1,7 @@
-package Programming.CBL;
+package Programming.CBL.Objects;
 
+import Programming.CBL.Panels.GamePanel;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
@@ -13,7 +13,7 @@ import java.awt.geom.Point2D;
 public abstract class Actor {
     protected GamePanel panel;
     protected double speed; // pixels per second
-    protected Point2D pos;
+    public Point2D pos;
     protected final int width;
     protected final int height;
 
