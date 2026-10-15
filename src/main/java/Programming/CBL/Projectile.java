@@ -4,20 +4,23 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Area;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
 public class Projectile extends Actor implements SelfMoving {
-    private final Actor origin;
-    private double xDir; 
-    private double yDir; 
+    private static final int SPEED = 120;
 
-    public Projectile(double x, double y, int width, int height, double xDir,
-                      double yDir, Actor origin, GamePanel panel) {
-        super(x, y, width, height, panel);
+    private final Actor origin;
+    private Point2D dir = new Point2D.Double(0, 0);
+
+    public Projectile(Point2D pos, int width, int height,
+                      Point2D dir, Actor origin, GamePanel panel) {
+
+        super(new Point2D.Double(pos.getX(), pos.getY()), width, height, panel);
         this.origin = Objects.requireNonNull(origin, "origin");
-        this.xDir = xDir;
-        this.yDir = yDir;
+        this.dir = new Point2D.Double(dir.getX(), dir.getY());
+        this.speed = SPEED;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class Projectile extends Actor implements SelfMoving {
 
     @Override
     public Shape getShape() {
-        return new Rectangle2D.Double(x, y, width, height);
+        return new Rectangle2D.Double(pos.getX(), pos.getY(), width, height);
     }
 
     /**    
@@ -37,8 +40,8 @@ public class Projectile extends Actor implements SelfMoving {
      */
     @Override
     public boolean update(double dt) {
-        double dx = this.speed * xDir;
-        double dy = this.speed * yDir;
+        double dx = this.speed * dir.getX();
+        double dy = this.speed * dir.getY();
 
         this.move(dx, dy, dt);
 
@@ -62,21 +65,13 @@ public class Projectile extends Actor implements SelfMoving {
 
         Area overlap = new Area(targetShape);
         overlap.intersect(new Area(projectileShape));
-        return !overlap.isEmpty();
+        if (overlap.isEmpty()) {
+            return false;
+        }
+        this.kill();
+        return true;
     }
 
     public void kill() {}
-
-    @Override
-    public boolean reduceHealth(int amount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reduceHealth'");
-    }
-
-    @Override
-    public boolean increaseHealth(int amount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'increaseHealth'");
-    }
     
 }

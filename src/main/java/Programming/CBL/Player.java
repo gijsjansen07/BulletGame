@@ -5,23 +5,34 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.time.Duration;
+import java.time.Instant;
 
 
 public class Player extends Actor {
+    private static final int TIME_BETWEEN_SHOTS = 400;
+    private static final int SPEED = 100;
+
     private String name;
     private int highscore = 0;
     private int health = 100;
     private static final int SIZE = 15;
-    private double timeSinceLastShot = 0;
+    private Instant lastShot = Instant.now();
 
-    public Player(String name, int[] startPos, GamePanel panel) {
-        super(startPos[0], startPos[1], SIZE, SIZE, panel);
+    public Player(String name, Point2D startPos, GamePanel panel) {
+        super(startPos, SIZE, SIZE, panel);
         this.name = name;
+        this.speed = SPEED; 
     }
 
-    public Projectile shootProjectile(Point p, double dt) {
-
-        return new Projectile(x, y, width, height, p.x, p.y, this, panel);
+    public boolean shootProjectile(Point2D p, double dt, ProjectileManager pManager) {
+        Instant now = Instant.now();
+        if (Duration.between(lastShot, now).toMillis() > TIME_BETWEEN_SHOTS) {
+            this.lastShot = now;
+            return pManager.addProjectile(new Projectile(this.pos, width, height, p, this, panel));
+        }
+        return false;
     }
     
     @Override
@@ -32,7 +43,7 @@ public class Player extends Actor {
 
     @Override
     public Shape getShape() {
-        return new Ellipse2D.Double(x, y, SIZE, SIZE);
+        return new Ellipse2D.Double(pos.getX(), pos.getY(), SIZE, SIZE);
     }
 
     @Override
@@ -46,17 +57,16 @@ public class Player extends Actor {
         }
 
         // Set new position and clamp to window borders.
-        x = Math.max(0, Math.min(x + dx * speed * elapsedSeconds, this.panel.getWidth() - width));
-        y = Math.max(0, Math.min(y + dy * speed * elapsedSeconds, this.panel.getHeight() - height));
+        double newX = Math.max(0, Math.min(pos.getX() + dx * speed * elapsedSeconds, this.panel.getWidth() - width));
+        double newY = Math.max(0, Math.min(pos.getY() + dy * speed * elapsedSeconds, this.panel.getHeight() - height));
+        this.pos.setLocation(newX, newY);
     }
 
-    @Override
     public boolean reduceHealth(int amount) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'reduceHealth'");
     }
-
-    @Override
+    
     public boolean increaseHealth(int amount) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'increaseHealth'");

@@ -3,6 +3,8 @@ package Programming.CBL;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
+
 import javax.swing.*;
 
 public class GamePanel extends JPanel implements KeyListener {
@@ -31,7 +33,7 @@ public class GamePanel extends JPanel implements KeyListener {
         addKeyListener(this);
 
         // Player set up (position is plain data, drawn in paintComponent)
-        this.player = new Player("Player", new int[] {225, 450}, this);
+        this.player = new Player("Player", new Point2D.Double(225, 450), this);
 
         // Projectile Manager set up
         this.pManager = new ProjectileManager();
@@ -46,9 +48,11 @@ public class GamePanel extends JPanel implements KeyListener {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         // Draw call
         pManager.drawProjectiles(g2);
         player.draw(g2);
+
         // Flush the display buffer (helps on Linux)
         Toolkit.getDefaultToolkit().sync();
     }
@@ -64,8 +68,10 @@ public class GamePanel extends JPanel implements KeyListener {
         // Mouse position
         Point mouse = MouseInfo.getPointerInfo().getLocation();
         Point panellocation = this.getLocationOnScreen();
-        Point relativeMouse = new Point(mouse.x - panellocation.x, mouse.y - panellocation.y);
-        Point playerDirVec = new Point(relativeMouse.x - (int) player.x, relativeMouse.y - (int) player.y);
+        Point2D relativeMouse = new Point2D.Double(mouse.x - panellocation.x,
+                                                   mouse.y - panellocation.y);
+        Point2D playerDirVec = new Point2D.Double(relativeMouse.getX() - player.pos.getX(),
+                                       relativeMouse.getY() - player.pos.getY());
 
         // Move player according to held keys and elapsed time
         int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
@@ -79,8 +85,8 @@ public class GamePanel extends JPanel implements KeyListener {
         int w = getWidth();
         int h = getHeight();
 
-        // updates 
-        pManager.addProjectile(player.shootProjectile(playerDirVec, elapsedSeconds));
+        // updates
+        player.shootProjectile(playerDirVec, elapsedSeconds, pManager);
 
         pManager.updateProjectiles(elapsedSeconds);
         pManager.removeHitProjectiles(player);
