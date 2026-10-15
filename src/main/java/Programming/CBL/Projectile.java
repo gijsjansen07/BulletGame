@@ -65,7 +65,7 @@ public class Projectile extends Actor implements SelfMoving {
         return !overlap.isEmpty();
     }
 
-    public void kill() {};
+    public void kill() {}
 
     @Override
     public boolean reduceHealth(int amount) {
