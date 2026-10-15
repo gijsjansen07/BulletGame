@@ -61,22 +61,31 @@ public class GamePanel extends JPanel implements KeyListener {
             return;
         }
 
-        long now = System.nanoTime();
-        double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
-        lastUpdateNanos = now;
+        // Mouse position
+        Point mouse = MouseInfo.getPointerInfo().getLocation();
+        Point panellocation = this.getLocationOnScreen();
+        Point relativeMouse = new Point(mouse.x - panellocation.x, mouse.y - panellocation.y);
+        Point playerDirVec = new Point(relativeMouse.x - (int) player.x, relativeMouse.y - (int) player.y);
 
-        int w = getWidth();
-        int h = getHeight();
-
-        pManager.updateProjectiles(elapsedSeconds);
-        pManager.removeHitProjectiles(player);
         // Move player according to held keys and elapsed time
         int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
         int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
 
+        // dt
+        long now = System.nanoTime();
+        double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
+        lastUpdateNanos = now;
+         
+        int w = getWidth();
+        int h = getHeight();
+
+        // updates 
+        pManager.addProjectile(player.shootProjectile(playerDirVec, elapsedSeconds));
+
+        pManager.updateProjectiles(elapsedSeconds);
+        pManager.removeHitProjectiles(player);
+
         //Player shoots projectile
-        Projectile p = new Projectile(player.x, player.y, 5, 5, dx, dy, player, this);
-        pManager.addProjectile(p);
         player.move(dx, dy, elapsedSeconds);
     }
 

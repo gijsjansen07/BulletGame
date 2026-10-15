@@ -40,6 +40,8 @@ public class ProjectileManager {
                 it.remove();
             }
         }
+
+        System.out.println(projectiles.size());
     }
 
     public void updateAndDrawProjectiles(Graphics2D g, double dt) {
@@ -53,6 +55,7 @@ public class ProjectileManager {
                 projectile.draw(g);
             }
         }
+        System.out.println(projectiles.size());
     }
 
     public Projectile[] removeHitProjectiles(Actor a) {
