@@ -11,9 +11,12 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
-
+/**
+ * 
+ * Projectile
+ * Generic projectile that extends Actor and implements SelfMoving.
+*/
 public class Projectile extends Actor implements SelfMoving {
-    
     private final Actor origin;
     private Point2D dir = new Point2D.Double(0, 0);
 
@@ -26,12 +29,20 @@ public class Projectile extends Actor implements SelfMoving {
         this.speed = speed;
     }
 
+    /**    (non-Javadoc)
+     * 
+     * @see Programming.CBL.Objects.Actor#draw(java.awt.Graphics2D)
+     */
     @Override
     public void draw(Graphics2D g) {
         g.setColor(Color.MAGENTA);
         g.fill(getShape());
     }
 
+    /**    (non-Javadoc)
+     * 
+     * @see Programming.CBL.Objects.Actor#getShape()
+     */
     @Override
     public Shape getShape() {
         return new Rectangle2D.Double(pos.getX(), pos.getY(), width, height);
@@ -55,6 +66,12 @@ public class Projectile extends Actor implements SelfMoving {
                 && bounds.getMinY() < panel.getHeight();
     }
 
+    /**
+     * Checks if Actor a hits the the projectile. Based on actor Shape
+     * @param a
+     * @return False if actor is the projectile, if actor is the origin of the projectile 
+     * and if projectile does not hit actor.
+     */
     public boolean hits(Actor a) {
         if (this == a || this.origin == a) {
             return false;

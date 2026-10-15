@@ -9,10 +9,15 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-
+/**
+ * Class that can manipulate the scores in the Highscores.txt file.
+*/
 public class HighScoresManager {
     private static final File FILE = new File("Highscores.txt");
     
+    /**
+     * Tries to create a file when the manager is used.
+    */
     static {
         try {
             FILE.createNewFile();
@@ -22,6 +27,11 @@ public class HighScoresManager {
         }
     }
 
+    /**
+     * Reads the scores from Highscores.txt and parses them into a ScoreObject. 
+     * Uses the TreeMap because it is ordered by key which is useful for ranking.
+     * @return a TreeMap<Long, ScoreObject> where the long is the score.
+    */
     public static TreeMap<Long, ScoreObject> getScores() {
         try (Scanner reader = new Scanner(FILE)) {
             if (!FILE.canRead()) {
@@ -44,6 +54,11 @@ public class HighScoresManager {
         }
     }
 
+    /**
+     * Writes the score object to the file
+     * @param scoreObject score to written
+     * @return true if score is written false if not.
+     */
     public static boolean addScore(ScoreObject scoreObject) {
         try (FileWriter fileWriter = new FileWriter(FILE, true)) {
             if (!FILE.canWrite()) {

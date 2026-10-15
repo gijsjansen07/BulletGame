@@ -21,9 +21,11 @@ public class ProjectileManager {
     public boolean addProjectile(Projectile projectile) {
         return projectiles.add(projectile);
     }
-
-
     
+    /**
+     * Draws the projectiles in the active projectile list 
+     * @param g graphics2D object to draw on.
+     */
     public void drawProjectiles(Graphics2D g) {
         Iterator<Projectile> it = projectiles.iterator();
         
@@ -33,6 +35,10 @@ public class ProjectileManager {
         }
     }
 
+    /**
+     * Updates and moves the projectiles according to the passed delta time
+     * @param dt delta time
+     */
     public void updateProjectiles(double dt) {
         Iterator<Projectile> it = projectiles.iterator();
         
@@ -46,6 +52,12 @@ public class ProjectileManager {
         System.out.println(projectiles.size());
     }
 
+    /**
+     * @see Programming.CBL.Manager.ProjectileManager#updateProjectiles(double)
+     * @see Programming.CBL.Manager.ProjectileManager#drawProjectiles(Graphics2D)
+     * @param g
+     * @param dt
+    */
     public void updateAndDrawProjectiles(Graphics2D g, double dt) {
         Iterator<Projectile> it = projectiles.iterator();
         
@@ -60,6 +72,12 @@ public class ProjectileManager {
         System.out.println(projectiles.size());
     }
 
+    /***
+     * removes the hit projectiles by Actor a. 
+     * @see Programming.CBL.Objects.Projectile#hits(Actor)
+     * @param a
+     * @return array of projectiles that hit Actor a
+    */
     public Projectile[] removeHitProjectiles(Actor a) {
         ArrayList<Projectile> hits = new ArrayList<>();
         Iterator<Projectile> it = projectiles.iterator();

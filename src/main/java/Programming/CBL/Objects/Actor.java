@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
 
 /**
  * Actor class is an abstract class that is the root class of all actors within the
- * game that have a position on screen and a health value.
+ * game that have a position on screen.
  * Actors are plain data objects; they are drawn by the GamePanel.
  */
 public abstract class Actor {

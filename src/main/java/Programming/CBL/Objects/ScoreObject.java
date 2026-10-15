@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * ScoreObject
+ * An object to store score data in.
  */
 public class ScoreObject {
     private LocalDateTime date;
@@ -15,10 +16,6 @@ public class ScoreObject {
         this.date = date;
         this.name = name;
         this.score = score;
-    }
-    
-    public boolean writeToFile(File file) {
-        return false;
     }
 
     public LocalDateTime getDate() {

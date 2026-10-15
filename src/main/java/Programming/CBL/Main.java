@@ -55,6 +55,7 @@ public class Main {
 
         highscoresButton.addActionListener(e -> {
             frame.getContentPane().removeAll();
+            // Inits the highscores panel
             HighScoresPanel highScoresPanel = new HighScoresPanel(frame);
             frame.add(highScoresPanel);
             frame.revalidate();

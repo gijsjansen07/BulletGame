@@ -19,6 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+
+/**
+ * 
+ * HighScoresPanel
+ * is the panel that displays the highscores locally stored by the player of the game.
+ */
 public class HighScoresPanel extends JPanel {
     private static final Color BACKGROUND = Color.WHITE;
     private static final Color ROW_BACKGROUND = Color.MAGENTA;
@@ -28,17 +34,21 @@ public class HighScoresPanel extends JPanel {
 
     public HighScoresPanel(JFrame frame) {
         this.parentFrame = frame;
+        // Panel set up
         setBackground(BACKGROUND);
         setLayout(new BorderLayout(16, 16));
         setBorder(BorderFactory.createEmptyBorder(24, 32, 24, 32));
 
+        // Title
         JLabel title = new JLabel("HIGH SCORES", SwingConstants.CENTER);
         title.setForeground(ACCENT);
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         add(title, BorderLayout.NORTH);
 
+        //Score list
         add(createScoreList(), BorderLayout.CENTER);
 
+        // Back button
         JButton backButton = new JButton("Back to Menu");
         backButton.addActionListener(e -> Main.showMenu(parentFrame));
         JPanel footer = new JPanel();
@@ -47,11 +57,16 @@ public class HighScoresPanel extends JPanel {
         add(footer, BorderLayout.SOUTH);
     }
 
+    /**
+     * fetches the scores registered and creates a JScrollPane that displays the scores ordered.
+     * @return a JScrollPane that contains all the scores registered in the file.
+     */
     private JScrollPane createScoreList() {
         TreeMap<Long, ScoreObject> scores = HighScoresManager.getScores();
         JPanel rows = new JPanel(new GridLayout(0, 1, 0, 8));
         rows.setBackground(BACKGROUND);
 
+        // If there are no scores display no scores message
         if (scores.isEmpty()) {
             JLabel emptyMessage = new JLabel("No scores yet. Play a game to set a high score!",
                     SwingConstants.CENTER);
@@ -59,7 +74,10 @@ public class HighScoresPanel extends JPanel {
             emptyMessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
             rows.add(emptyMessage);
         } else {
+            // If there are scores add them to the scrollpane
+            // First row
             rows.add(createRow("RANK", "PLAYER", "SCORE", true));
+            // Starting rank
             int rank = 1;
             for (Map.Entry<Long, ScoreObject> entry : scores.descendingMap().entrySet()) {
                 ScoreObject score = entry.getValue();
@@ -70,7 +88,7 @@ public class HighScoresPanel extends JPanel {
                         false));
             }
         }
-
+        // Finalization
         JScrollPane scrollPane = new JScrollPane(rows);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(BACKGROUND);
@@ -78,6 +96,14 @@ public class HighScoresPanel extends JPanel {
         return scrollPane;
     }
 
+    /**
+     * Creates a JPanel 'row' that displays the rank player name and score.
+     * @param rank rank of the Score
+     * @param player name of the player
+     * @param score score of the player
+     * @param header background of the row is accent color
+     * @return JPanel containing the correct labels
+     */
     private JPanel createRow(String rank, String player, String score, boolean header) {
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setBackground(header ? BACKGROUND : ROW_BACKGROUND);
@@ -94,6 +120,13 @@ public class HighScoresPanel extends JPanel {
         return row;
     }
 
+    /**
+     * Creates a Jlabel that acts as a 'cell' in the row
+     * @param text text in the jlabel
+     * @param header If the background is the accent color
+     * @param alignment where to place the cell.
+     * @return JLabel that acts as a cell
+    */
     private JLabel createCell(String text, boolean header, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setForeground(header ? ACCENT : Color.WHITE);
