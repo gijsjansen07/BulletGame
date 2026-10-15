@@ -35,6 +35,9 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean gameOver = false;
     private JButton retryButton;
 
+    // Renderer for the elimination screen
+    private TextElimination textElimination = new TextElimination();
+
     public GamePanel(JFrame frame) {
         this.parentFrame = frame;
         setLayout(null);
@@ -77,40 +80,20 @@ public class GamePanel extends JPanel implements KeyListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // draw enwmies
         player.draw(g2);
-
         for (Enemy enemy : enemies) {
             enemy.draw(g2);
         }
 
+        // score
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
         g2.drawString(String.format("Score: %d s", (int) survivalTime), 15, 25);
 
+        // call text eliminator
         if (gameOver) {
-            g2.setColor(new Color(0, 0, 0, 190));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-
-            g2.setColor(Color.RED);
-            g2.setFont(new Font("Arial", Font.BOLD, 36));
-            FontMetrics fm = g2.getFontMetrics();
-            String title = "ELIMINATED!";
-            int titleX = (getWidth() - fm.stringWidth(title)) / 2;
-            g2.drawString(title, titleX, 230);
-
-            g2.setFont(new Font("Arial", Font.BOLD, 18));
-            g2.setColor(Color.WHITE);
-            String finalScoreMsg = String.format("Survived: %.1f seconds", survivalTime);
-            FontMetrics fmScore = g2.getFontMetrics();
-            int scoreX = (getWidth() - fmScore.stringWidth(finalScoreMsg)) / 2;
-            g2.drawString(finalScoreMsg, scoreX, 270);
-
-            g2.setFont(new Font("Arial", Font.PLAIN, 14));
-            g2.setColor(Color.LIGHT_GRAY);
-            String tip = "Click 'Try Again' or press 'R' to restart";
-            FontMetrics fmTip = g2.getFontMetrics();
-            int tipX = (getWidth() - fmTip.stringWidth(tip)) / 2;
-            g2.drawString(tip, tipX, 310);
+            textElimination.draw(g2, getWidth(), getHeight(), survivalTime);
         }
 
         Toolkit.getDefaultToolkit().sync();
