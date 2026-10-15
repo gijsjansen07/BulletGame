@@ -5,22 +5,33 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.GridLayout;
 
+/**
+ * Main entry point for the Bullet Hell game.
+ * Sets up the fixed window and manages top-level menu navigation.
+ */
 public class Main {
+    // Fixed window dimensions to prevent layout distortion
+    public static final int WIDTH = 500;
+    public static final int HEIGHT = 600;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Bullet Hell - Game");
-        frame.setSize(500, 600);
+        frame.setSize(WIDTH, HEIGHT);
+        frame.setResizable(false); // Keeps window bounds consistent
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        // menu
+        // Display the start menu
         showMenu(frame);
 
         frame.setVisible(true);
     }
 
+    /**
+     * Clears existing views and renders the primary navigation menu.
+     * @param frame The application main window.
+     */
     public static void showMenu(JFrame frame) {
-        // clean screen
         frame.getContentPane().removeAll();
 
         JPanel menuPanel = new JPanel();
@@ -30,22 +41,20 @@ public class Main {
         JButton highscoresButton = new JButton("Highscores");
         JButton exitButton = new JButton("Exit");
 
-        // exit
+        // Terminate application on exit
         exitButton.addActionListener(e -> System.exit(0));
 
-        // start button
+        // Switch from menu view to active game session
         startButton.addActionListener(e -> {
-            //Clears the frame
             frame.getContentPane().removeAll();
 
-            //Inits a gamepanel on in the window
             GamePanel gamePanel = new GamePanel(frame);
             frame.add(gamePanel);
 
             frame.revalidate();
             frame.repaint();
 
-            // Allows the gamepanel to check key inputs
+            // Give input focus to the game canvas for key listening
             gamePanel.requestFocusInWindow();
         });
 
@@ -54,8 +63,6 @@ public class Main {
         menuPanel.add(exitButton);
 
         frame.add(menuPanel);
-
-        // refresh window
         frame.revalidate();
         frame.repaint();
     }
