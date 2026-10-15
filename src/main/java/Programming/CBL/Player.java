@@ -11,7 +11,7 @@ import java.time.Instant;
 
 
 public class Player extends Actor {
-    private static final int TIME_BETWEEN_SHOTS = 400;
+    private static final int TIME_BETWEEN_SHOTS = 200;
     private static final int SPEED = 100;
 
     private String name;
@@ -30,7 +30,7 @@ public class Player extends Actor {
         Instant now = Instant.now();
         if (Duration.between(lastShot, now).toMillis() > TIME_BETWEEN_SHOTS) {
             this.lastShot = now;
-            return pManager.addProjectile(new Projectile(this.pos, width, height, p, this, panel));
+            return pManager.addProjectile(new Projectile(this.pos, width, height, p, this, 400, panel));
         }
         return false;
     }

@@ -9,18 +9,17 @@ import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
 public class Projectile extends Actor implements SelfMoving {
-    private static final int SPEED = 120;
-
+    
     private final Actor origin;
     private Point2D dir = new Point2D.Double(0, 0);
 
     public Projectile(Point2D pos, int width, int height,
-                      Point2D dir, Actor origin, GamePanel panel) {
+                      Point2D dir, Actor origin, int speed,GamePanel panel) {
 
         super(new Point2D.Double(pos.getX(), pos.getY()), width, height, panel);
         this.origin = Objects.requireNonNull(origin, "origin");
         this.dir = new Point2D.Double(dir.getX(), dir.getY());
-        this.speed = SPEED;
+        this.speed = speed;
     }
 
     @Override
