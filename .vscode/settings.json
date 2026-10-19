@@ -1,5 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.checkstyle.configuration": "${workspaceFolder}/2IP90_checks.xml",
-    "java.checkstyle.version": "14.3.0"
+    "java.checkstyle.version": "14.3.0",
+    "java.debug.settings.onBuildFailureProceed": true
 }
