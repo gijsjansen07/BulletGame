@@ -1,6 +1,7 @@
 package Programming.CBL;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -14,6 +15,13 @@ public class EnemyManager {
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private Random random = new Random();
     private double spawnTimer = 0.0;
+
+    private GamePanel panel;
+
+    public EnemyManager(GamePanel panel) {
+        super();
+        this.panel = panel;
+    }
 
     /**
      * Resets the active enemies and the spawn clock.
@@ -58,12 +66,23 @@ public class EnemyManager {
             }
 
             // Radial collision check against the player
-            if (checkCollision(player, enemy)) {
+            if (enemy.hits(player)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public void enemyHits(Actor a) {
+        Iterator<Enemy> it = enemies.iterator();
+        while (it.hasNext()) {
+            Enemy enemy = it.next();
+            // Radial collision check against the player
+            if (enemy.hits(a)) {
+                it.remove();
+            }
+        }
     }
 
     /**
@@ -129,21 +148,8 @@ public class EnemyManager {
         double speedX = dirX * speed;
         double speedY = dirY * speed;
 
-        enemies.add(new Enemy(startX, startY, speedX, speedY));
-    }
+        Point2D startPos = new Point2D.Double(startX, startY);
 
-    /**
-     * Radial Euclidean distance check between two circular bounding circles.
-     */
-    private boolean checkCollision(Player p, Enemy e) {
-        double pCenterX = p.getX() + p.getSize() / 2.0;
-        double pCenterY = p.getY() + p.getSize() / 2.0;
-        double eCenterX = e.getX() + e.getWidth() / 2.0;
-        double eCenterY = e.getY() + e.getHeight() / 2.0;
-
-        double distance = Math.hypot(pCenterX - eCenterX, pCenterY - eCenterY);
-        double minDistance = (p.getSize() / 2.0) + (e.getWidth() / 2.0);
-
-        return distance < minDistance;
+        enemies.add(new Enemy(startPos, speedX, speedY, this.panel));
     }
 }
