@@ -1,35 +1,34 @@
 package Programming.CBL.Panels;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import Programming.CBL.Main;
 import Programming.CBL.Manager.EnemyManager;
 import Programming.CBL.Manager.HighScoresManager;
 import Programming.CBL.Manager.ProjectileManager;
-import Programming.CBL.Objects.Enemy;
 import Programming.CBL.Objects.Actor;
+import Programming.CBL.Objects.Enemy;
 import Programming.CBL.Objects.Player;
 import Programming.CBL.Objects.ScoreObject;
-
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
 
 public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60; // Target ~60 FPS
@@ -43,8 +42,6 @@ public class GamePanel extends JPanel implements KeyListener {
     // Managers and renderers
     private EnemyManager enemyManager = new EnemyManager(this);
     private ProjectileManager projectileManager = new ProjectileManager();
-    private TextElimination textElimination = new TextElimination();
-
 
     private double survivalTime = 0.0;
     private boolean gameOver = false;
@@ -70,6 +67,8 @@ public class GamePanel extends JPanel implements KeyListener {
         retryButton.setVisible(false);
         retryButton.addActionListener(e -> restartGame());
         add(retryButton);
+
+
 
         // Start first game
         initGame();
@@ -111,11 +110,12 @@ public class GamePanel extends JPanel implements KeyListener {
         projectileManager.drawProjectiles(g2);
 
         // HUD / Survival score
-        drawHUD(g2);
+        GamePanelHudElements.drawHUD((long) survivalTime, g2);
 
         // Render elimination screen if gameOver
         if (gameOver) {
-            textElimination.draw(g2, getWidth(), getHeight(), finalScore.getScore());
+            GamePanelHudElements.drawGameOverScreen(g2, getWidth(),
+                                                    getHeight(), finalScore.getScore());
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -139,46 +139,18 @@ public class GamePanel extends JPanel implements KeyListener {
                                        mousePos.getY() - player.getY());
 
         // Update player position
-        int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
-        int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
-
+        Point2D dpos = getDeltaPlayerPosition(); 
         // Move all entities
-        player.move(dx, dy, dt);
+        player.move(dpos.getX(), dpos.getY(), dt);
         enemyManager.updateEnemies(dt, survivalTime);
         projectileManager.updateProjectiles(dt);
 
-        // Check if player hits an enemy directly
-        if (!enemyManager.hitEnemies(player).isEmpty()) {
-            // If so immediatly end game
-            player.reduceHealth(player.getHealth());
-            finishGameIfPlayerIsDead();
-            if (gameOver) {
-                return;
-            }
+        playerHitsEnemy();
+        if (gameOver) {
+            return;
         }
 
-        // Get all the possible targets for projectile collision (Enemies and player)
-        List<Actor> collisionTargets = new ArrayList<>(enemyManager.getEnemies());
-        collisionTargets.add(player);
-        // See if any of the targets get hit by a projectile
-        ArrayList<Actor> hitTargets = projectileManager.resolveCollisions(collisionTargets);
-        // Apply aproptiate consequences
-        for (Actor target : hitTargets) {
-            // Check if the targets instance is of the Enemy type and remove the enemy
-            if (target instanceof Enemy) {
-                enemyManager.remove((Enemy) target);
-            } else if (target == player) {
-                // If the target is the player take reduce health if no I frames.
-                Instant nowInstant = Instant.now();
-                Duration timeSinceLastHit = Duration.between(player.getLastHit(), nowInstant);
-                if (timeSinceLastHit.toMillis() >= Player.getMaxInvincibillityTime()) {
-                    player.reduceHealth(1);
-                    player.setLastHit(nowInstant);
-                    finishGameIfPlayerIsDead();
-                }
-            }
-        }
-
+        resolveProjectileCollisions();
         if (gameOver) {
             return;
         }
@@ -187,6 +159,54 @@ public class GamePanel extends JPanel implements KeyListener {
         player.shootProjectile(playerDirVec, dt, projectileManager);
 
         survivalTime += dt;
+    }
+
+    private Point2D getDeltaPlayerPosition() {        
+        int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
+        int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
+        return new Point(dx, dy);
+    }
+
+    /**
+     * Resolves the collisions between all projectiles and possible targets on screen.
+     */
+    private void resolveProjectileCollisions() {
+        // Get all the possible targets for projectile collision (Enemies and player)
+        List<Actor> collisionTargets = new ArrayList<>(enemyManager.getEnemies());
+        collisionTargets.add(player);
+
+        // See if any of the targets get hit by a projectile
+        ArrayList<Actor> hitTargets = projectileManager.resolveCollisions(collisionTargets);
+        
+        // Apply aproptiate consequences
+        for (Actor target : hitTargets) {
+
+            // Check if the targets instance is of the Enemy type and remove the enemy
+            if (target instanceof Enemy) {
+                enemyManager.remove((Enemy) target);
+            } else if (target == player) {
+                // If the target is the player take reduce health if no I frames.
+                Instant nowInstant = Instant.now();
+                Duration timeSinceLastHit = Duration.between(player.getLastHit(), nowInstant);
+                
+                if (timeSinceLastHit.toMillis() >= Player.getMaxInvincibillityTime()) {
+                    player.reduceHealth(1);
+                    player.setLastHit(nowInstant);
+                    finishGameIfPlayerIsDead();
+                }
+            }
+        }
+    }
+
+    /** Check if player hits an enemy directly
+     * 
+    */
+    private void playerHitsEnemy() {
+        if (!enemyManager.hitEnemies(player).isEmpty()) {
+            // If so immediatly end game
+            player.reduceHealth(player.getHealth());
+            finishGameIfPlayerIsDead();
+        }
     }
 
     /**
@@ -229,10 +249,4 @@ public class GamePanel extends JPanel implements KeyListener {
                                                    mouse.y - panellocation.y);
     }
 
-    private void drawHUD(Graphics2D g2) {
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.PLAIN, 14));
-        g2.drawString(String.format("Score: %d s", (int) survivalTime), 15, 25);
-
-    }
 }

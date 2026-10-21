@@ -8,9 +8,16 @@ import java.awt.Graphics2D;
 /**
  * Handles rendering the game over elimination overlay and text.
  */
-public class TextElimination {
+public class GamePanelHudElements {
 
-    public void draw(Graphics2D g2, int width, int height, long score) {
+    public static void drawHUD(long score, Graphics2D g2) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.PLAIN, 14));
+        g2.drawString(String.format("Score: %d s", (int) score), 15, 25);
+
+    }
+
+    public static void drawGameOverScreen(Graphics2D g2, int width, int height, long score) {
         // background
         g2.setColor(new Color(0, 0, 0, 190));
         g2.fillRect(0, 0, width, height);
