@@ -3,7 +3,6 @@ package Programming.CBL.Objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
@@ -43,6 +42,11 @@ public class Enemy extends Actor implements SelfMoving {
         return true;
     }
 
+    @Override
+    public Faction getFaction() {
+        return Faction.ENEMY;
+    }
+
     /**
      * Checks if the enemy has completely crossed outside any of the 4 boundaries.
      * @param this.panel.getWidth() Screen width limit.
@@ -67,23 +71,4 @@ public class Enemy extends Actor implements SelfMoving {
         return new Ellipse2D.Double(pos.getX(), pos.getY(), SIZE, SIZE);
     }
 
-    public boolean hits(Actor a) {
-        if (this == a) {
-            return false;
-        }
-
-        Shape targetShape = a.getShape();
-        Shape projectileShape = getShape();
-        if (!targetShape.getBounds2D().intersects(projectileShape.getBounds2D())) {
-            return false;
-        }
-
-        Area overlap = new Area(targetShape);
-        overlap.intersect(new Area(projectileShape));
-        if (overlap.isEmpty()) {
-            return false;
-        }
-
-        return true;
-    }
 }

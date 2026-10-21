@@ -12,8 +12,8 @@ import Programming.CBL.Manager.EnemyManager;
 import Programming.CBL.Manager.HighScoresManager;
 import Programming.CBL.Manager.ProjectileManager;
 import Programming.CBL.Objects.Enemy;
+import Programming.CBL.Objects.Actor;
 import Programming.CBL.Objects.Player;
-import Programming.CBL.Objects.Projectile;
 import Programming.CBL.Objects.ScoreObject;
 
 import java.awt.Color;
@@ -29,15 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-/*
-    When the game is over currently the timer gets stopped and the remaining call is finished. 
-
-
-*/
-
-
-
+import java.util.List;
 
 public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60; // Target ~60 FPS
@@ -57,6 +49,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private double survivalTime = 0.0;
     private boolean gameOver = false;
     private JButton retryButton;
+    private ScoreObject finalScore;
 
     private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
         updateGame();
@@ -90,6 +83,7 @@ public class GamePanel extends JPanel implements KeyListener {
         this.survivalTime = 0.0;
         this.lastUpdateNanos = System.nanoTime();
         this.gameOver = false;
+        this.finalScore = null;
 
 
         //Start game
@@ -121,11 +115,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
         // Render elimination screen if gameOver
         if (gameOver) {
-            ScoreObject score = new ScoreObject(LocalDateTime.now(),
-                                                player.getName(),
-                                                (long) survivalTime * 100);
-            HighScoresManager.addScore(score);
-            textElimination.draw(g2, getWidth(), getHeight(), score.getScore());
+            textElimination.draw(g2, getWidth(), getHeight(), finalScore.getScore());
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -144,10 +134,6 @@ public class GamePanel extends JPanel implements KeyListener {
         double dt = (now - lastUpdateNanos) / 1_000_000_000.0;
         lastUpdateNanos = now;
         
-
-        int w = getWidth();
-        int h = getHeight();
-
         Point2D mousePos = getMousePos();
         Point2D playerDirVec = new Point2D.Double(mousePos.getX() - player.getX(),
                                        mousePos.getY() - player.getY());
@@ -156,40 +142,67 @@ public class GamePanel extends JPanel implements KeyListener {
         int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
         int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
 
+        // Move all entities
         player.move(dx, dy, dt);
-
         enemyManager.updateEnemies(dt, survivalTime);
         projectileManager.updateProjectiles(dt);
 
-        ArrayList<Enemy> hEnemies = enemyManager.hitEnemies(player);
-        ArrayList<Projectile> hProjectiles = projectileManager.hitProjectiles(player);
-
-        if (hEnemies.size() > 0) {
+        // Check if player hits an enemy directly
+        if (!enemyManager.hitEnemies(player).isEmpty()) {
+            // If so immediatly end game
             player.reduceHealth(player.getHealth());
-        }
-        
-        if (hProjectiles.size() > 0) {
-            Instant nowInstant = Instant.now();
-            Instant lastHit = player.getLastHit();
-            Duration timeBetweenHits = Duration.between(lastHit, nowInstant); 
-            if (timeBetweenHits.toMillis() < Player.getMaxInvincibillityTime()) {
-                player.reduceHealth(1);
-                player.setLastHit(nowInstant);
+            finishGameIfPlayerIsDead();
+            if (gameOver) {
+                return;
             }
         }
 
-        for (Enemy enemy : enemyManager.getEnemies()) {
-            ArrayList<Projectile> projectilesThatHitEnemy = projectileManager.hitProjectiles(enemy);
-            for (Projectile projectile : projectilesThatHitEnemy) {
-                if (projectile.getOrigin().getClass() == player.getClass()) {
-                    enemyManager.remove(enemy);
+        // Get all the possible targets for projectile collision (Enemies and player)
+        List<Actor> collisionTargets = new ArrayList<>(enemyManager.getEnemies());
+        collisionTargets.add(player);
+        // See if any of the targets get hit by a projectile
+        ArrayList<Actor> hitTargets = projectileManager.resolveCollisions(collisionTargets);
+        // Apply aproptiate consequences
+        for (Actor target : hitTargets) {
+            // Check if the targets instance is of the Enemy type and remove the enemy
+            if (target instanceof Enemy) {
+                enemyManager.remove((Enemy) target);
+            } else if (target == player) {
+                // If the target is the player take reduce health if no I frames.
+                Instant nowInstant = Instant.now();
+                Duration timeSinceLastHit = Duration.between(player.getLastHit(), nowInstant);
+                if (timeSinceLastHit.toMillis() >= Player.getMaxInvincibillityTime()) {
+                    player.reduceHealth(1);
+                    player.setLastHit(nowInstant);
+                    finishGameIfPlayerIsDead();
                 }
             }
         }
+
+        if (gameOver) {
+            return;
+        }
+
+        // Shoot new player projectiles
         player.shootProjectile(playerDirVec, dt, projectileManager);
-        projectileManager.removeHitProjectiles(player);
 
         survivalTime += dt;
+    }
+
+    /**
+     * checks if player health is 0 and stops game.
+     * 
+    */
+    private void finishGameIfPlayerIsDead() {
+        if (player.getHealth() == 0) {
+            gameOver = true;
+            finalScore = new ScoreObject(LocalDateTime.now(),
+                                         player.getName(),
+                                         (long) survivalTime * 100);
+            HighScoresManager.addScore(finalScore);
+            gameTimer.stop();
+            retryButton.setVisible(true);
+        }
     }
 
     public void keyTyped(KeyEvent e) {}

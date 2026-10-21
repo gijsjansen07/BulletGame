@@ -1,6 +1,7 @@
 package Programming.CBL.Objects;
 
 import Programming.CBL.Panels.GamePanel;
+import java.awt.geom.Area;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -53,6 +54,26 @@ public abstract class Actor {
      * @return the actor's shape
      */
     public abstract Shape getShape();
+
+    /**
+     * Sees if the actor overlaps with another actor. First does a rough box check and if 
+     * that holds then does a precise Area check.
+     * @param other actor to compare with
+     * @return true if overlaps
+     */
+    public boolean overlaps(Actor other) {
+        Shape thisShape = getShape();
+        Shape otherShape = other.getShape();
+        if (!thisShape.getBounds2D().intersects(otherShape.getBounds2D())) {
+            return false;
+        }
+
+        Area overlap = new Area(thisShape);
+        overlap.intersect(new Area(otherShape));
+        return !overlap.isEmpty();
+    }
+
+    public abstract Faction getFaction();
 
     /**
      * Draws the actor.

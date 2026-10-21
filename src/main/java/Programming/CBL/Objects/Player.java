@@ -18,6 +18,7 @@ public class Player extends Actor {
     private static final int SPEED = 100;
     private static final int SIZE = 15;
     private static final int MAX_INVINCIBILLITY_TIME = 2000;
+    private static final int MAX_HEALTH = 100;
     
     private String name;
     private int health = 100;
@@ -43,6 +44,12 @@ public class Player extends Actor {
     public String getName() {
         return name;
     }
+
+    @Override
+    public Faction getFaction() {
+        return Faction.PLAYER;
+    }
+
     public Player(String name, Point2D startPos, GamePanel panel) {
         super(startPos, SIZE, SIZE, panel);
         this.name = name;
@@ -91,12 +98,20 @@ public class Player extends Actor {
     }
 
     public boolean reduceHealth(int amount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reduceHealth'");
+        if (amount < 0) {
+            throw new IllegalArgumentException("Health reduction cannot be negative");
+        }
+        int previousHealth = health;
+        health = Math.max(0, health - amount);
+        return health < previousHealth;
     }
     
     public boolean increaseHealth(int amount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'increaseHealth'");
+        if (amount < 0) {
+            throw new IllegalArgumentException("Health increase cannot be negative");
+        }
+        int previousHealth = health;
+        health = Math.min(MAX_HEALTH, health + amount);
+        return health > previousHealth;
     }
 }

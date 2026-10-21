@@ -24,6 +24,10 @@ public class EnemyManager {
         return enemies;
     }
 
+    public boolean remove(Enemy enemy) {
+        return enemies.remove(enemy);
+    }
+
     private Random random = new Random();
     private double spawnTimer = 0.0;
 
@@ -82,7 +86,7 @@ public class EnemyManager {
         Iterator<Enemy> it = enemies.iterator();
         while (it.hasNext()) {
             Enemy enemy = it.next();
-            if (enemy.hits(a)) {
+            if (enemy.overlaps(a)) {
                 hits.add(enemy);
             }
         }

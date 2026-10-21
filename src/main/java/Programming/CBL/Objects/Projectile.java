@@ -6,7 +6,6 @@ import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
@@ -23,7 +22,7 @@ public class Projectile extends Actor implements SelfMoving {
         return origin;
     }
 
-    private Point2D dir = new Point2D.Double(0, 0);
+    private final Point2D dir;
 
     public Projectile(Point2D pos, int width, int height,
                       Point2D dir, Actor origin, int speed, GamePanel panel) {
@@ -32,6 +31,25 @@ public class Projectile extends Actor implements SelfMoving {
         this.origin = Objects.requireNonNull(origin, "origin");
         this.dir = new Point2D.Double(dir.getX(), dir.getY());
         this.speed = speed;
+    }
+
+    @Override
+    public Faction getFaction() {
+        return origin.getFaction();
+    }
+
+    /**
+     * @return false if a projectile can hit a targot actor by checking if it has the same origin,
+     *  if it is itself, if the faction of either is neutral, and if the faction is the same. 
+     * Otherwise return true
+     * @param target if the projectile can hit
+     */
+    public boolean canHit(Actor target) {
+        return target != origin
+                && target != this
+                && getFaction() != Faction.NEUTRAL
+                && target.getFaction() != Faction.NEUTRAL
+                && getFaction() != target.getFaction();
     }
 
     /**    (non-Javadoc)
@@ -71,32 +89,4 @@ public class Projectile extends Actor implements SelfMoving {
                 && bounds.getMinY() < panel.getHeight();
     }
 
-    /**
-     * Checks if Actor a hits the the projectile. Based on actor Shape
-     * @param a
-     * @return False if actor is the projectile, if actor is the origin of the projectile 
-     * and if projectile does not hit actor.
-     */
-    public boolean hits(Actor a) {
-        if (this == a || this.origin == a) {
-            return false;
-        }
-
-        Shape targetShape = a.getShape();
-        Shape projectileShape = getShape();
-        if (!targetShape.getBounds2D().intersects(projectileShape.getBounds2D())) {
-            return false;
-        }
-
-        Area overlap = new Area(targetShape);
-        overlap.intersect(new Area(projectileShape));
-        if (overlap.isEmpty()) {
-            return false;
-        }
-        this.kill();
-        return true;
-    }
-
-    public void kill() {}
-    
 }

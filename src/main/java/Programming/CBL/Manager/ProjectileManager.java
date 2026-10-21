@@ -5,6 +5,7 @@ import Programming.CBL.Objects.Actor;
 import Programming.CBL.Objects.Projectile;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -30,7 +31,7 @@ public class ProjectileManager {
         return projectiles.add(projectile);
     }
     
-    public void removeProjeciles(ArrayList<Projectile> projectiles) {
+    public void removeProjectiles(Collection<Projectile> projectiles) {
         this.projectiles.removeAll(projectiles);
     }
 
@@ -80,23 +81,25 @@ public class ProjectileManager {
         }
     }
 
-    /***
-     * removes the hit projectiles by Actor a. 
-     * @see Programming.CBL.Objects.Projectile#hits(Actor)
-     * @param a
-     * @return array of projectiles that hit Actor a
-    */
-    public ArrayList<Projectile> hitProjectiles(Actor a) {
-        ArrayList<Projectile> hits = new ArrayList<>();
+    /**
+     * Finds which target actors collide with projectiles based on
+     *  if they can hit and if they overlap. Uses double nested loops.
+     * @param targets actors that projectiles may collide with
+     * @return the targets hit by projectiles
+     */
+    public ArrayList<Actor> resolveCollisions(Collection<? extends Actor> targets) {
+        ArrayList<Actor> hitTargets = new ArrayList<>();
         Iterator<Projectile> it = projectiles.iterator();
-
         while (it.hasNext()) {
             Projectile projectile = it.next();
-            if (projectile.hits(a)) {
-                hits.add(projectile);
+            for (Actor target : targets) {
+                if (projectile.canHit(target) && projectile.overlaps(target)) {
+                    hitTargets.add(target);
+                    it.remove();
+                    break;
+                }
             }
         }
-        return hits;
+        return hitTargets;
     }
-
 }
