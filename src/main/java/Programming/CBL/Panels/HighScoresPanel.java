@@ -61,7 +61,7 @@ public class HighScoresPanel extends JPanel {
      * fetches the scores registered and creates a JScrollPane that displays the scores ordered.
      * @return a JScrollPane that contains all the scores registered in the file.
      */
-    private JScrollPane createScoreList() {
+    public static JScrollPane createScoreList() {
         TreeMap<Long, ScoreObject> scores = HighScoresManager.getScores();
         JPanel rows = new JPanel(new GridLayout(0, 1, 0, 8));
         rows.setBackground(BACKGROUND);
@@ -104,7 +104,7 @@ public class HighScoresPanel extends JPanel {
      * @param header background of the row is accent color
      * @return JPanel containing the correct labels
      */
-    private JPanel createRow(String rank, String player, String score, boolean header) {
+    private static JPanel createRow(String rank, String player, String score, boolean header) {
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setBackground(header ? BACKGROUND : ROW_BACKGROUND);
         row.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
@@ -127,7 +127,7 @@ public class HighScoresPanel extends JPanel {
      * @param alignment where to place the cell.
      * @return JLabel that acts as a cell
     */
-    private JLabel createCell(String text, boolean header, int alignment) {
+    private static JLabel createCell(String text, boolean header, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setForeground(header ? ACCENT : Color.WHITE);
         label.setFont(new Font(Font.SANS_SERIF,

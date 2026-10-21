@@ -27,6 +27,8 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 
 
@@ -46,6 +48,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private double survivalTime = 0.0;
     private boolean gameOver = false;
     private JButton retryButton;
+    private JTextField textField;
+    private JScrollPane highScores;
     private ScoreObject finalScore;
 
     private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
@@ -60,6 +64,12 @@ public class GamePanel extends JPanel implements KeyListener {
         setFocusable(true);
         addKeyListener(this);
 
+
+        highScores = HighScoresPanel.createScoreList();
+        highScores.setBounds(50, 100, 400, 220);
+        highScores.setVisible(false);
+        add(highScores);
+
         // Add rety button to panel
         retryButton = new JButton("Try Again");
         retryButton.setBounds(185, 340, 130, 40);
@@ -68,15 +78,24 @@ public class GamePanel extends JPanel implements KeyListener {
         retryButton.addActionListener(e -> restartGame());
         add(retryButton);
 
+        // Add name input Field
+        textField = new JTextField();
+        textField.setBounds(185, 300, 130, 30);
+        textField.addActionListener(e -> {
+            String name = textField.getText().trim();
 
-
-        // Start first game
-        initGame();
+            if (!name.isEmpty()) {
+                playerName = name;
+                textField.setVisible(false);
+                initGame();
+            }
+        });
+        add(textField);
+        repaint();
     }
 
     private void initGame() {
-        // Clears the previous games data
-        this.player = new Player("Player", new Point2D.Double(225, 450), this);
+        player = new Player(playerName, new Point2D.Double(225, 450), this);
         this.enemyManager.reset();
         this.projectileManager.reset();
         this.survivalTime = 0.0;
@@ -84,22 +103,27 @@ public class GamePanel extends JPanel implements KeyListener {
         this.gameOver = false;
         this.finalScore = null;
 
-
         //Start game
         gameTimer.start();
     }
 
     private void restartGame() {
-        // Hide retry buttion
+        playerName = null;
         retryButton.setVisible(false);
-        requestFocusInWindow();
-        // Start game
-        initGame();
+        highScores.setVisible(false);
+        textField.setText("");
+        textField.setVisible(true);
+        textField.requestFocusInWindow();
+        revalidate();
+        repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (playerName == null) {
+            return;
+        }
         Graphics2D g2 = (Graphics2D) g;
         // Turns on anti aliasing for subpixel movement.
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -215,13 +239,30 @@ public class GamePanel extends JPanel implements KeyListener {
     */
     private void finishGameIfPlayerIsDead() {
         if (player.getHealth() == 0) {
+            if (gameOver) {
+                return;
+            }
             gameOver = true;
             finalScore = new ScoreObject(LocalDateTime.now(),
                                          player.getName(),
                                          (long) survivalTime * 100);
             HighScoresManager.addScore(finalScore);
             gameTimer.stop();
+            textField.setVisible(false);
+
+            // Highscores & retry button
+            remove(highScores);
             retryButton.setVisible(true);
+            highScores = HighScoresPanel.createScoreList();
+
+            int listY = getHeight() / 3;
+            int listHeight = getHeight() / 2;
+            highScores.setBounds(50, listY, getWidth() - 100, listHeight);
+            add(highScores);
+            highScores.setVisible(true);
+            retryButton.setBounds((getWidth() - 130) / 2, getHeight() - 55, 130, 40);
+            revalidate();
+            repaint();
         }
     }
 
@@ -248,5 +289,7 @@ public class GamePanel extends JPanel implements KeyListener {
         return new Point2D.Double(mouse.x - panellocation.x,
                                                    mouse.y - panellocation.y);
     }
+
+    private String playerName = null;
 
 }
