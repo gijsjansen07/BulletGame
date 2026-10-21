@@ -18,10 +18,22 @@ import java.util.Iterator;
 public class ProjectileManager {
     private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 
+    public void reset() {
+        this.projectiles.clear();
+    }
+
+    public ArrayList<Projectile> getProjectiles() {
+        return projectiles;
+    }
+
     public boolean addProjectile(Projectile projectile) {
         return projectiles.add(projectile);
     }
     
+    public void removeProjeciles(ArrayList<Projectile> projectiles) {
+        this.projectiles.removeAll(projectiles);
+    }
+
     /**
      * Draws the projectiles in the active projectile list 
      * @param g graphics2D object to draw on.
@@ -41,15 +53,12 @@ public class ProjectileManager {
      */
     public void updateProjectiles(double dt) {
         Iterator<Projectile> it = projectiles.iterator();
-        
         while (it.hasNext()) {
             Projectile projectile = it.next();
             if (!projectile.update(dt)) {
                 it.remove();
             }
         }
-
-        System.out.println(projectiles.size());
     }
 
     /**
@@ -69,7 +78,6 @@ public class ProjectileManager {
                 projectile.draw(g);
             }
         }
-        System.out.println(projectiles.size());
     }
 
     /***
@@ -78,7 +86,7 @@ public class ProjectileManager {
      * @param a
      * @return array of projectiles that hit Actor a
     */
-    public Projectile[] removeHitProjectiles(Actor a) {
+    public ArrayList<Projectile> hitProjectiles(Actor a) {
         ArrayList<Projectile> hits = new ArrayList<>();
         Iterator<Projectile> it = projectiles.iterator();
 
@@ -86,10 +94,9 @@ public class ProjectileManager {
             Projectile projectile = it.next();
             if (projectile.hits(a)) {
                 hits.add(projectile);
-                it.remove();
             }
         }
-        return hits.toArray(new Projectile[0]);
+        return hits;
     }
 
 }

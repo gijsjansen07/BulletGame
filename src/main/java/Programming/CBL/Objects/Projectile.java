@@ -18,6 +18,11 @@ import java.util.Objects;
 */
 public class Projectile extends Actor implements SelfMoving {
     private final Actor origin;
+    
+    public Actor getOrigin() {
+        return origin;
+    }
+
     private Point2D dir = new Point2D.Double(0, 0);
 
     public Projectile(Point2D pos, int width, int height,

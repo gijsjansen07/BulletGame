@@ -59,4 +59,20 @@ public abstract class Actor {
      * @param g graphics context to draw with
      */
     public abstract void draw(Graphics2D g);
+
+    public double getX() {
+        return this.pos.getX();
+    }
+
+    public double getY() {
+        return this.pos.getY();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

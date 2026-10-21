@@ -10,18 +10,39 @@ import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.Instant;
 
-
+/**
+ * Represents the playable character controlled via keyboard input.
+ */
 public class Player extends Actor {
     private static final int TIME_BETWEEN_SHOTS = 200;
     private static final int SPEED = 100;
-
-
-    private String name;
-    private int highscore = 0;
-    private int health = 100;
     private static final int SIZE = 15;
+    private static final int MAX_INVINCIBILLITY_TIME = 2000;
+    
+    private String name;
+    private int health = 100;
     private Instant lastShot = Instant.now();
+    private Instant lastHit = Instant.now();
 
+    public static int getMaxInvincibillityTime() {
+        return MAX_INVINCIBILLITY_TIME;
+    }
+
+    public Instant getLastHit() {
+        return lastHit;
+    }
+
+    public void setLastHit(Instant lastHit) {
+        this.lastHit = lastHit;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public String getName() {
+        return name;
+    }
     public Player(String name, Point2D startPos, GamePanel panel) {
         super(startPos, SIZE, SIZE, panel);
         this.name = name;
