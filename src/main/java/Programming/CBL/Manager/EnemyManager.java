@@ -1,4 +1,4 @@
-package Programming.CBL;
+package Programming.CBL.Manager;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -6,12 +6,27 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
+import Programming.CBL.Objects.Actor;
+import Programming.CBL.Objects.Enemy;
+import Programming.CBL.Objects.Player;
+import Programming.CBL.Objects.Projectile;
+import Programming.CBL.Panels.GamePanel;
+
 /**
  * Manages the collection of active enemies on screen.
  * Handles procedural spawning, shooting routines, updates, rendering, and collisions.
  */
 public class EnemyManager {
     private ArrayList<Enemy> enemies = new ArrayList<>();
+
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
+
+    public boolean remove(Enemy enemy) {
+        return enemies.remove(enemy);
+    }
+
     private Random random = new Random();
     private double spawnTimer = 0.0;
 
@@ -27,17 +42,24 @@ public class EnemyManager {
     }
 
     /**
-     * Updates enemy positions, triggers shots towards the player, spawns new enemies,
-     * cleans off-screen entities, and checks for direct collisions.
+     * Updates enemy positions, scales dynamic difficulty, spawns new enemies,
+     * removes off-screen entities, and checks for collisions against the player.
+     *
+     * @param elapsedSeconds Time delta since last update.
+     * @param panel.getWidth() Current play area width.
+     * @param panel.getHeight() Current play area height.
+     * @param survivalTime Total elapsed game time used to scale difficulty.
+     * @param player The target player actor to verify collisions against.
+     * @return True if any enemy collides with the player, false otherwise.
      */
-    public boolean update(double elapsedSeconds, int screenWidth, int screenHeight,
-                          double survivalTime, Player player, ProjectileManager pManager) {
+    public void updateEnemies(Player player, ProjectileManager pManager, double elapsedSeconds, double survivalTime) {
+        // Dynamic spawn frequency: interval shrinks as survivalTime increases
         double currentSpawnInterval = Math.max(0.25, 1.2 - (survivalTime * 0.02));
         spawnTimer += elapsedSeconds;
 
         if (spawnTimer >= currentSpawnInterval) {
             spawnTimer = 0.0;
-            spawnEnemy(screenWidth, screenHeight, survivalTime);
+            spawnEnemy(survivalTime);
         }
 
         Iterator<Enemy> it = enemies.iterator();
@@ -49,47 +71,41 @@ public class EnemyManager {
             enemy.shootAt(new Point2D.Double(player.getX(), player.getY()), elapsedSeconds, pManager);
 
             // Remove enemy once outside view bounds
-            if (enemy.isOffScreen(screenWidth, screenHeight)) {
+            if (enemy.isOffScreen()) {
                 it.remove();
                 continue;
             }
-
-            // Direct collision check against the player body
-            if (enemy.hits(player)) {
-                return true;
-            }
         }
-
-        return false;
     }
 
-    /**
-     * Checks if a player's projectile hits any active enemy.
-     * Enemy projectiles are ignored so enemies never hurt themselves.
-     */
-    public void enemyHits(Projectile projectile) {
-        if (projectile instanceof EnemyProjectile || projectile.getOrigin() instanceof Enemy) {
-            return;
-        }
-
+    public ArrayList<Enemy> hitEnemies(Actor a) {
+        ArrayList<Enemy> hits = new ArrayList<Enemy>();
         Iterator<Enemy> it = enemies.iterator();
         while (it.hasNext()) {
             Enemy enemy = it.next();
-            if (projectile.hits(enemy)) {
-                it.remove();
-                break;
+            if (enemy.overlaps(a)) {
+                hits.add(enemy);
             }
         }
+        return hits;
     }
 
-    public void draw(Graphics2D g2) {
+    /**
+     * Draws all active enemies onto the graphics context.
+     *
+     * @param g2 Graphics2D instance.
+     */
+    public void drawEnemies(Graphics2D g2) {
         for (Enemy enemy : enemies) {
             enemy.draw(g2);
         }
     }
 
-    private void spawnEnemy(int screenWidth, int screenHeight, double survivalTime) {
-        if (screenWidth <= 0 || screenHeight <= 0) {
+    /**
+     * Spawns an enemy along one of the 4 borders directed towards the map center.
+     */
+    private void spawnEnemy(double survivalTime) {
+        if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
             return;
         }
 
@@ -99,27 +115,28 @@ public class EnemyManager {
 
         switch (side) {
             case 0: // Top
-                startX = random.nextInt(screenWidth);
+                startX = random.nextInt(panel.getWidth());
                 startY = -25;
                 break;
             case 1: // Bottom
-                startX = random.nextInt(screenWidth);
-                startY = screenHeight + 25;
+                startX = random.nextInt(panel.getWidth());
+                startY = panel.getHeight() + 25;
                 break;
             case 2: // Left
                 startX = -25;
-                startY = random.nextInt(screenHeight);
+                startY = random.nextInt(panel.getHeight());
                 break;
             case 3: // Right
-                startX = screenWidth + 25;
-                startY = random.nextInt(screenHeight);
+                startX = panel.getWidth() + 25;
+                startY = random.nextInt(panel.getHeight());
                 break;
             default:
                 break;
         }
 
-        double targetX = 50 + random.nextInt(Math.max(1, screenWidth - 100));
-        double targetY = 50 + random.nextInt(Math.max(1, screenHeight - 100));
+        // Pick a target coordinate to calculate directional vector
+        double targetX = 50 + random.nextInt(Math.max(1, panel.getWidth() - 100));
+        double targetY = 50 + random.nextInt(Math.max(1, panel.getHeight() - 100));
 
         double dirX = targetX - startX;
         double dirY = targetY - startY;
@@ -130,7 +147,8 @@ public class EnemyManager {
             dirY /= length;
         }
 
-        double speed = 110 + random.nextInt(60) + Math.min(80, survivalTime * 1.5);
+        // 
+        double speed = 40 + random.nextInt(10) + Math.min(5, survivalTime * 0.5);
         double speedX = dirX * speed;
         double speedY = dirY * speed;
 

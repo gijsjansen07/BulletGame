@@ -1,9 +1,13 @@
 package Programming.CBL;
 
+
+import Programming.CBL.Panels.GamePanel;
+import Programming.CBL.Panels.HighScoresPanel;
+import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.GridLayout;
+
 
 public class Main {
     public static final int WIDTH = 500;
@@ -45,6 +49,15 @@ public class Main {
             gamePanel.requestFocusInWindow();
         });
 
+        highscoresButton.addActionListener(e -> {
+            frame.getContentPane().removeAll();
+            // Inits the highscores panel
+            HighScoresPanel highScoresPanel = new HighScoresPanel(frame);
+            frame.add(highScoresPanel);
+            frame.revalidate();
+            frame.repaint();
+        });
+
         menuPanel.add(startButton);
         menuPanel.add(highscoresButton);
         menuPanel.add(exitButton);
@@ -53,4 +66,7 @@ public class Main {
         frame.revalidate();
         frame.repaint();
     }
+
+
+
 }

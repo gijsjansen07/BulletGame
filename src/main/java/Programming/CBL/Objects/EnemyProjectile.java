@@ -1,10 +1,14 @@
-package Programming.CBL;
+package Programming.CBL.Objects;
 
+
+import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+
+
 
 /**
  * Represents a projectile fired by an enemy directed towards the player.
@@ -13,7 +17,7 @@ import java.awt.geom.Point2D;
 public class EnemyProjectile extends Projectile {
     // Increased size slightly (from 8 to 14) for better visibility
     private static final int PROJECTILE_SIZE = 14;
-    private static final int ENEMY_BULLET_SPEED = 200;
+    private static final int ENEMY_BULLET_SPEED = 50;
 
     /**
      * Constructs an enemy bullet moving towards a normalized direction.
