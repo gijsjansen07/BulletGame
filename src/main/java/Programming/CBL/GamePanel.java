@@ -1,7 +1,16 @@
 package Programming.CBL;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -10,12 +19,6 @@ import javax.swing.Timer;
 /**
  * Main game panel handling loop updates, input routing, and top-level rendering delegation.
  */
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Point2D;
-
-import javax.swing.*;
-
 public class GamePanel extends JPanel implements KeyListener {
     private static final int FRAME_DELAY_MS = 1000 / 60; // Target ~60 FPS
     
@@ -54,11 +57,6 @@ public class GamePanel extends JPanel implements KeyListener {
         retryButton.setVisible(false);
         retryButton.addActionListener(e -> restartGame());
         add(retryButton);
-        // Player set up (position is plain data, drawn in paintComponent)
-        this.player = new Player("Player", new Point2D.Double(225, 450), this);
-
-        // Projectile Manager set up
-        this.pManager = new ProjectileManager();
 
         lastUpdateNanos = System.nanoTime();
         gameTimer.start();
@@ -66,6 +64,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void initGame() {
         this.player = new Player("Player", new Point2D.Double(225, 450), this);
+        this.pManager = new ProjectileManager();
         this.enemyManager.reset();
         this.survivalTime = 0.0;
         this.gameOver = false;
@@ -115,46 +114,51 @@ public class GamePanel extends JPanel implements KeyListener {
             return;
         }
 
-        // dt
+        // Delta time
         long now = System.nanoTime();
         double elapsedSeconds = (now - lastUpdateNanos) / 1_000_000_000.0;
         lastUpdateNanos = now;
-         
+
         int w = getWidth();
         int h = getHeight();
 
-
-        // Mouse position
+        // Mouse position and aiming vector
         Point mouse = MouseInfo.getPointerInfo().getLocation();
-        Point panellocation = this.getLocationOnScreen();
-        Point2D relativeMouse = new Point2D.Double(mouse.x - panellocation.x,
-                                                   mouse.y - panellocation.y);
-        Point2D playerDirVec = new Point2D.Double(relativeMouse.getX() - player.pos.getX(),
-                                       relativeMouse.getY() - player.pos.getY());
+        Point panelLocation = this.getLocationOnScreen();
+        Point2D relativeMouse = new Point2D.Double(mouse.x - panelLocation.x, mouse.y - panelLocation.y);
+        Point2D playerDirVec = new Point2D.Double(relativeMouse.getX() - player.getX(),
+                                                 relativeMouse.getY() - player.getY());
 
-        // Update player position
-        int dx = (keys[KeyEvent.VK_RIGHT] ? 1 : 0) - (keys[KeyEvent.VK_LEFT] ? 1 : 0);
-        int dy = (keys[KeyEvent.VK_DOWN] ? 1 : 0) - (keys[KeyEvent.VK_UP] ? 1 : 0);
-
+        // Update player movement (supports both Arrow Keys and WASD)
+        int dx = ((keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D]) ? 1 : 0)
+               - ((keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A]) ? 1 : 0);
+        int dy = ((keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S]) ? 1 : 0)
+               - ((keys[KeyEvent.VK_UP] || keys[KeyEvent.VK_W]) ? 1 : 0);
         player.move(dx, dy, elapsedSeconds);
 
-        // Delegate enemy updates, spawns, and collision checks
-        boolean playerHit = enemyManager.update(elapsedSeconds, w, h, survivalTime, player);
+        // Update enemies (they will continue moving and shoot projectiles towards player)
+        boolean playerHit = enemyManager.update(elapsedSeconds, w, h, survivalTime, player, pManager);
+
+        // Update all projectiles
         pManager.updateProjectiles(elapsedSeconds);
+
+        // Check if player got hit by any enemy projectile
         Projectile[] hProjectiles = pManager.removeHitProjectiles(player);
 
+        // Player elimination trigger
         if (playerHit || hProjectiles.length > 0) {
             gameOver = true;
             gameTimer.stop();
             retryButton.setVisible(true);
         }
 
+        // Check if player projectiles hit any enemy
         for (Projectile projectile : pManager.getProjectiles()) {
             enemyManager.enemyHits(projectile);
         }
 
+        // Player shooting towards mouse
         player.shootProjectile(playerDirVec, elapsedSeconds, pManager);
-        pManager.removeHitProjectiles(player);
 
         survivalTime += elapsedSeconds;
     }

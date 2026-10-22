@@ -12,6 +12,7 @@ public class Projectile extends Actor implements SelfMoving {
     
     private final Actor origin;
     private Point2D dir = new Point2D.Double(0, 0);
+    private boolean alive = true;
 
     public Projectile(Point2D pos, int width, int height,
                       Point2D dir, Actor origin, int speed, GamePanel panel) {
@@ -20,6 +21,10 @@ public class Projectile extends Actor implements SelfMoving {
         this.origin = Objects.requireNonNull(origin, "origin");
         this.dir = new Point2D.Double(dir.getX(), dir.getY());
         this.speed = speed;
+    }
+
+    public Actor getOrigin() {
+        return origin;
     }
 
     @Override
@@ -33,12 +38,12 @@ public class Projectile extends Actor implements SelfMoving {
         return new Rectangle2D.Double(pos.getX(), pos.getY(), width, height);
     }
 
-    /**    
-     * 
-     * @see Programming.CBL.SelfMoving#update(double)
-     */
     @Override
     public boolean update(double dt) {
+        if (!alive) {
+            return false;
+        }
+
         double dx = this.speed * dir.getX();
         double dy = this.speed * dir.getY();
 
@@ -71,6 +76,7 @@ public class Projectile extends Actor implements SelfMoving {
         return true;
     }
 
-    public void kill() {}
-    
+    public void kill() {
+        this.alive = false;
+    }
 }
