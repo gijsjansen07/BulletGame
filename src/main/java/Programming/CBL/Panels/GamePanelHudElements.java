@@ -45,4 +45,21 @@ public class GamePanelHudElements {
         int tipX = (width - fmTip.stringWidth(tip)) / 2;
         g2.drawString(tip, tipX, height / 6 + 64);
     }
+
+    public static void drawPausedScreen(Graphics2D g2, int width, int height) {
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRect(0, 0, width, height);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 36));
+        FontMetrics titleMetrics = g2.getFontMetrics();
+        String title = "Paused";
+        g2.drawString(title, (width - titleMetrics.stringWidth(title)) / 2, height / 2);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 16));
+        FontMetrics instructionMetrics = g2.getFontMetrics();
+        String instruction = "Press ESC to resume";
+        g2.drawString(instruction, (width - instructionMetrics.stringWidth(instruction)) / 2,
+                height / 2 + 36);
+    }
 }

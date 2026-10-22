@@ -10,6 +10,8 @@ import Programming.CBL.Objects.Enemy;
 import Programming.CBL.Objects.Player;
 import Programming.CBL.Objects.ScoreObject;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
@@ -56,6 +58,8 @@ public class GamePanel extends JPanel implements KeyListener {
         updateGame();
         repaint();
     });
+
+    private boolean paused;
 
     public GamePanel(JFrame frame) {
         this.parentFrame = frame;
@@ -124,6 +128,7 @@ public class GamePanel extends JPanel implements KeyListener {
         if (playerName == null) {
             return;
         }
+
         Graphics2D g2 = (Graphics2D) g;
         // Turns on anti aliasing for subpixel movement.
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -140,19 +145,14 @@ public class GamePanel extends JPanel implements KeyListener {
         if (gameOver) {
             GamePanelHudElements.drawGameOverScreen(g2, getWidth(),
                                                     getHeight(), finalScore.getScore());
+        } else if (paused) {
+            GamePanelHudElements.drawPausedScreen(g2, getWidth(), getHeight());
         }
 
         Toolkit.getDefaultToolkit().sync();
     }
 
     protected void updateGame() {
-        // Return to main menu on ESC
-        if (keys[KeyEvent.VK_ESCAPE]) {
-            gameTimer.stop();
-            Main.showMenu(parentFrame);
-            return;
-        }
-
         // dt
         long now = System.nanoTime();
         double dt = (now - lastUpdateNanos) / 1_000_000_000.0;
@@ -214,7 +214,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 Duration timeSinceLastHit = Duration.between(player.getLastHit(), nowInstant);
                 
                 if (timeSinceLastHit.toMillis() >= Player.getMaxInvincibillityTime()) {
-                    player.reduceHealth(1);
+                    player.reduceHealth(10);
                     player.setLastHit(nowInstant);
                     finishGameIfPlayerIsDead();
                 }
@@ -274,6 +274,20 @@ public class GamePanel extends JPanel implements KeyListener {
         }
         if (gameOver && (e.getKeyCode() == KeyEvent.VK_R || e.getKeyCode() == KeyEvent.VK_ENTER)) {
             restartGame();
+        }
+
+        // Pauze
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            if (gameTimer.isRunning() && !gameOver) {
+                paused = true;
+                gameTimer.stop();
+            } else if (!gameOver) {
+                lastUpdateNanos = System.nanoTime();
+                paused = false;
+                gameTimer.start();
+            }
+            repaint();
+            return;
         }
     }
 
