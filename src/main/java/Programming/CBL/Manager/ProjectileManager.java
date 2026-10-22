@@ -84,7 +84,8 @@ public class ProjectileManager {
     /**
      * Finds which target actors collide with projectiles based on
      *  if they can hit and if they overlap. Uses double nested loops.
-     * @param targets actors that projectiles may collide with
+     * @param targets actors that projectiles may collide with can be of any Collection 
+     * type that contains classes that extend Actor
      * @return the targets hit by projectiles
      */
     public ArrayList<Actor> resolveCollisions(Collection<? extends Actor> targets) {

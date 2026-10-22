@@ -6,6 +6,7 @@ import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
@@ -21,7 +22,8 @@ public class Projectile extends Actor implements SelfMoving {
     private boolean alive = true;
 
     public Projectile(Point2D pos, int width, int height,
-                      Point2D dir, Actor origin, int speed, GamePanel panel) {
+                      Point2D dir, Actor origin, int speed,
+                      GamePanel panel) {
 
         super(new Point2D.Double(pos.getX(), pos.getY()), width, height, panel);
         this.origin = Objects.requireNonNull(origin, "origin");
@@ -68,7 +70,7 @@ public class Projectile extends Actor implements SelfMoving {
      */
     @Override
     public Shape getShape() {
-        return new Rectangle2D.Double(pos.getX(), pos.getY(), width, height);
+        return new Ellipse2D.Double(pos.getX(), pos.getY(), width, height);
     }
 
     /**    

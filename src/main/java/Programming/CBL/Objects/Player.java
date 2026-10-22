@@ -1,9 +1,11 @@
 package Programming.CBL.Objects;
 
+import Programming.CBL.Manager.DifficultyManager;
 import Programming.CBL.Manager.ProjectileManager;
 import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -14,12 +16,12 @@ import java.time.Instant;
  * Represents the playable character controlled via keyboard input.
  */
 public class Player extends Actor {
-    private static final int TIME_BETWEEN_SHOTS = 200;
-    private static final int SPEED = 75;
-    private static final int SIZE = 10;
-    private static final int MAX_INVINCIBILLITY_TIME = 500;
-    private static final int MAX_HEALTH = 100;
-    private static final int BULLET_SPEED = 300;
+    private static final int TIME_BETWEEN_SHOTS = DifficultyManager.PLAYER_TIME_BETWEEN_SHOTS;
+    private static final int SPEED = DifficultyManager.PLAYER_SPEED;
+    private static final int SIZE = DifficultyManager.PLAYER_SIZE;
+    private static final int MAX_INVINCIBILLITY_TIME = DifficultyManager.PLAYER_MAX_INVINCIBILLITY_TIME;
+    private static final int MAX_HEALTH = DifficultyManager.PLAYER_MAX_HEALTH;
+    private static final int BULLET_SPEED = DifficultyManager.PLAYER_BULLET_SPEED;
     
     private String name;
     private int health = 100;
@@ -57,11 +59,20 @@ public class Player extends Actor {
         this.speed = SPEED; 
     }
 
+    /***
+     * 
+     * @param p position to shoot from
+     * @param dt 
+     * @param pManager 
+     * @return true if projectile added to pmanager
+    */
     public boolean shootProjectile(Point2D p, double dt, ProjectileManager pManager) {
         Instant now = Instant.now();
         if (Duration.between(lastShot, now).toMillis() > TIME_BETWEEN_SHOTS) {
             this.lastShot = now;
-            return pManager.addProjectile(new Projectile(this.pos, width, height, 
+            return pManager.addProjectile(new Projectile(this.pos, 
+                                                         DifficultyManager.PLAYER_BULLET_SIZE,
+                                                         DifficultyManager.PLAYER_BULLET_SIZE, 
                                                          p, this, BULLET_SPEED, panel));
         }
         return false;
@@ -75,6 +86,7 @@ public class Player extends Actor {
 
     @Override
     public Shape getShape() {
+
         return new Ellipse2D.Double(pos.getX(), pos.getY(), SIZE, SIZE);
     }
 

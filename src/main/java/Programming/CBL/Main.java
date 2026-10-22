@@ -11,12 +11,12 @@ import javax.swing.JPanel;
 
 public class Main {
     public static final int WIDTH = 500;
-    public static final int HEIGHT = 600;
+    public static final int HEIGHT = 800;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Bullet Hell - Game");
         frame.setSize(WIDTH, HEIGHT);
-        frame.setResizable(false); // Evita que se pueda cambiar el tamaño de la ventana
+        frame.setResizable(false); 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
@@ -40,7 +40,7 @@ public class Main {
         startButton.addActionListener(e -> {
             frame.getContentPane().removeAll();
 
-            GamePanel gamePanel = new GamePanel(frame);
+            GamePanel gamePanel = new GamePanel();
             frame.add(gamePanel);
 
             frame.revalidate();

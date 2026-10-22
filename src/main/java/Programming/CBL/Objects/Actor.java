@@ -31,8 +31,6 @@ public abstract class Actor {
      * @param dx horizontal distance to move
      * @param dy vertical distance to move
      * @param elapsedSeconds time since the last update
-     * @param areaWidth width of the play area
-     * @param areaHeight height of the play area
      */
     public void move(double dx, double dy, double elapsedSeconds) {
         double length = Math.hypot(dx, dy);

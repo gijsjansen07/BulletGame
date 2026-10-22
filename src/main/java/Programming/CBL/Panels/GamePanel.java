@@ -2,6 +2,7 @@ package Programming.CBL.Panels;
 
 
 import Programming.CBL.Main;
+import Programming.CBL.Manager.DifficultyManager;
 import Programming.CBL.Manager.EnemyManager;
 import Programming.CBL.Manager.HighScoresManager;
 import Programming.CBL.Manager.ProjectileManager;
@@ -35,10 +36,7 @@ import javax.swing.Timer;
 
 
 public class GamePanel extends JPanel implements KeyListener {
-    private static final int FRAME_DELAY_MS = 1000 / 60; // Target ~60 FPS
-
-    private JFrame parentFrame;
-    private Player player;
+    private static final int FRAME_DELAY_MS = 1000 / 60; // Target 60 FPS
     private long lastUpdateNanos;
 
     private final boolean[] keys = new boolean[KeyEvent.KEY_TYPED];
@@ -47,28 +45,34 @@ public class GamePanel extends JPanel implements KeyListener {
     private EnemyManager enemyManager = new EnemyManager(this);
     private ProjectileManager projectileManager = new ProjectileManager();
 
-    private double survivalTime = 0.0;
+    private Player player;
+
+    // Game State
     private boolean gameOver = false;
+    private boolean paused;
+    private double survivalTime = 0.0;
+    private int enemiesKilled = 0;
+    private long score = 0;
+
+    // Rendering objects
     private JButton retryButton;
     private JTextField textField;
     private JScrollPane highScores;
     private ScoreObject finalScore;
 
+    // Game loop
     private Timer gameTimer = new Timer(FRAME_DELAY_MS, e -> {
         updateGame();
         repaint();
     });
 
-    private boolean paused;
-
-    public GamePanel(JFrame frame) {
-        this.parentFrame = frame;
+    public GamePanel() {
         setLayout(null);
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
 
-
+        // Add highscores panel
         highScores = HighScoresPanel.createScoreList();
         highScores.setBounds(50, 100, 400, 220);
         highScores.setVisible(false);
@@ -102,6 +106,8 @@ public class GamePanel extends JPanel implements KeyListener {
         player = new Player(playerName, new Point2D.Double(225, 450), this);
         this.enemyManager.reset();
         this.projectileManager.reset();
+        this.score = 0;
+        this.enemiesKilled = 0;
         this.survivalTime = 0.0;
         this.lastUpdateNanos = System.nanoTime();
         this.gameOver = false;
@@ -139,7 +145,7 @@ public class GamePanel extends JPanel implements KeyListener {
         projectileManager.drawProjectiles(g2);
 
         // HUD / Survival score
-        GamePanelHudElements.drawHUD((long) survivalTime, player.getHealth(), g2);
+        GamePanelHudElements.drawHUD(score, player.getHealth(), g2);
 
         // Render elimination screen if gameOver
         if (gameOver) {
@@ -166,7 +172,7 @@ public class GamePanel extends JPanel implements KeyListener {
         Point2D dpos = getDeltaPlayerPosition(); 
         // Move all entities
         player.move(dpos.getX(), dpos.getY(), dt);
-        enemyManager.updateEnemies(player, projectileManager, dt, survivalTime);
+        enemyManager.updateEnemies(player, projectileManager, dt, score);
         projectileManager.updateProjectiles(dt);
 
         playerHitsEnemy();
@@ -183,6 +189,7 @@ public class GamePanel extends JPanel implements KeyListener {
         player.shootProjectile(playerDirVec, dt, projectileManager);
 
         survivalTime += dt;
+        score = DifficultyManager.calculateScore(enemiesKilled, survivalTime);
     }
 
     private Point2D getDeltaPlayerPosition() {        
@@ -208,6 +215,7 @@ public class GamePanel extends JPanel implements KeyListener {
             // Check if the targets instance is of the Enemy type and remove the enemy
             if (target instanceof Enemy) {
                 enemyManager.remove((Enemy) target);
+                enemiesKilled += 1;
             } else if (target == player) {
                 // If the target is the player take reduce health if no I frames.
                 Instant nowInstant = Instant.now();
@@ -222,7 +230,8 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    /** Check if player hits an enemy directly
+    /** 
+     * Check if player hits an enemy directly
      * 
     */
     private void playerHitsEnemy() {
@@ -245,7 +254,7 @@ public class GamePanel extends JPanel implements KeyListener {
             gameOver = true;
             finalScore = new ScoreObject(LocalDateTime.now(),
                                          player.getName(),
-                                         (long) survivalTime * 100);
+                                         score);
             HighScoresManager.addScore(finalScore);
             gameTimer.stop();
             textField.setVisible(false);

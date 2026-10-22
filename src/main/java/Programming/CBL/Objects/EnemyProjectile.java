@@ -1,6 +1,7 @@
 package Programming.CBL.Objects;
 
 
+import Programming.CBL.Manager.DifficultyManager;
 import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -16,8 +17,8 @@ import java.awt.geom.Point2D;
  */
 public class EnemyProjectile extends Projectile {
     // Increased size slightly (from 8 to 14) for better visibility
-    private static final int PROJECTILE_SIZE = 14;
-    private static final int ENEMY_BULLET_SPEED = 50;
+    private static final int PROJECTILE_SIZE = DifficultyManager.PROJECTILE_SIZE;
+    private static final int ENEMY_BULLET_SPEED = DifficultyManager.ENEMY_BULLET_SPEED;
 
     /**
      * Constructs an enemy bullet moving towards a normalized direction.

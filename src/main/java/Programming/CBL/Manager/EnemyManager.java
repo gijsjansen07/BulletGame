@@ -46,20 +46,20 @@ public class EnemyManager {
      * removes off-screen entities, and checks for collisions against the player.
      *
      * @param elapsedSeconds Time delta since last update.
-     * @param panel.getWidth() Current play area width.
-     * @param panel.getHeight() Current play area height.
-     * @param survivalTime Total elapsed game time used to scale difficulty.
+     * @param score Total elapsed game time used to scale difficulty.
      * @param player The target player actor to verify collisions against.
+     * @param pManager The projectile manager to add the enemie projectiles to.
      * @return True if any enemy collides with the player, false otherwise.
      */
-    public void updateEnemies(Player player, ProjectileManager pManager, double elapsedSeconds, double survivalTime) {
+    public void updateEnemies(Player player, ProjectileManager pManager,
+                              double elapsedSeconds, long score) {
         // Dynamic spawn frequency: interval shrinks as survivalTime increases
-        double currentSpawnInterval = Math.max(0.25, 1.2 - (survivalTime * 0.02));
+        double currentSpawnInterval = DifficultyManager.getEnemySpawnInterval(score);
         spawnTimer += elapsedSeconds;
 
-        if (spawnTimer >= currentSpawnInterval) {
+        if (spawnTimer >= currentSpawnInterval && enemies.size() <= DifficultyManager.ENEMY_CAP) {
             spawnTimer = 0.0;
-            spawnEnemy(survivalTime);
+            spawnEnemy(score);
         }
 
         Iterator<Enemy> it = enemies.iterator();
@@ -68,7 +68,8 @@ public class EnemyManager {
             enemy.update(elapsedSeconds);
 
             // Enemies shoot towards the player's position
-            enemy.shootAt(new Point2D.Double(player.getX(), player.getY()), elapsedSeconds, pManager);
+            enemy.shootAt(new Point2D.Double(player.getX(), player.getY()),
+                          elapsedSeconds, pManager);
 
             // Remove enemy once outside view bounds
             if (enemy.isOffScreen()) {
@@ -104,7 +105,7 @@ public class EnemyManager {
     /**
      * Spawns an enemy along one of the 4 borders directed towards the map center.
      */
-    private void spawnEnemy(double survivalTime) {
+    private void spawnEnemy(long score) {
         if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
             return;
         }
@@ -148,11 +149,11 @@ public class EnemyManager {
         }
 
         // 
-        double speed = 40 + random.nextInt(10) + Math.min(5, survivalTime * 0.5);
+        double speed = DifficultyManager.getEnemySpeed(score);
         double speedX = dirX * speed;
         double speedY = dirY * speed;
 
         Point2D startPos = new Point2D.Double(startX, startY);
-        enemies.add(new Enemy(startPos, speedX, speedY, this.panel));
+        enemies.add(new Enemy(startPos, speedX, speedY, score, this.panel));
     }
 }

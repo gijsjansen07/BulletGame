@@ -1,5 +1,10 @@
 package Programming.CBL.Objects;
 
+
+import Programming.CBL.Interfaces.SelfMoving;
+import Programming.CBL.Manager.DifficultyManager;
+import Programming.CBL.Manager.ProjectileManager;
+import Programming.CBL.Panels.GamePanel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -7,9 +12,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
-import Programming.CBL.Interfaces.SelfMoving;
-import Programming.CBL.Manager.ProjectileManager;
-import Programming.CBL.Panels.GamePanel;
 
 /**
  * Represents an enemy entity moving across the screen from any side.
@@ -20,23 +22,20 @@ public class Enemy extends Actor implements SelfMoving {
     private double speedX;
     private double speedY;
 
-    // Shooting cooldown timer
     private double shootTimer;
     private double shootInterval;
-    private static final Random RANDOM = new Random();
 
-    /**
-     * Constructs a new enemy with 2D velocity and a rapid shoot interval.
-     */
-    public Enemy(Point2D startPos, double speedX, double speedY, GamePanel panel) {
+    public Enemy(Point2D startPos, double speedX, double speedY, long score, GamePanel panel) {
         super(startPos, SIZE, SIZE, panel);
         this.speedX = speedX;
         this.speedY = speedY;
-        // Interval between shots reduced to ~0.5s - 0.8s for much faster firing
-        this.shootInterval = 0.5 + (RANDOM.nextDouble() * 0.3);
-        this.shootTimer = RANDOM.nextDouble() * 0.4; 
+        this.shootInterval = DifficultyManager.getEnemyShootInterval(score);
+        this.shootTimer = 0; 
     }
 
+    /**
+     *  @see Programming.CBL.Interfaces.SelfMoving#update(double)
+    */
     @Override
     public boolean update(double elapsedSeconds) {
         double x = this.pos.getX() + speedX * elapsedSeconds;
@@ -76,6 +75,7 @@ public class Enemy extends Actor implements SelfMoving {
             }
         }
     }
+    
 
     public boolean isOffScreen() {
         return (speedX > 0 && this.pos.getX() > this.panel.getWidth() + 60)
